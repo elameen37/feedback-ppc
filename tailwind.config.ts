@@ -57,6 +57,8 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        "icpc-green-light": "hsl(var(--icpc-green-light))",
+        "icpc-gold-light": "hsl(var(--icpc-gold-light))",
       },
       borderRadius: {
         lg: "var(--radius)",
