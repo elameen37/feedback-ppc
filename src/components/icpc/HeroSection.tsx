@@ -45,9 +45,9 @@ const HeroSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {categories.map((cat) => (
             <a key={cat.title} href={cat.href} className="group">
-              <Card className="h-full border-2 border-transparent hover:border-secondary transition-colors group-focus-visible:ring-2 group-focus-visible:ring-ring">
+              <Card className="h-full border-2 border-transparent hover:border-accent transition-colors group-focus-visible:ring-2 group-focus-visible:ring-ring">
                 <CardContent className="pt-6 text-center">
-                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 text-primary mb-4">
+                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-accent/10 text-accent mb-4">
                     <cat.icon className="h-7 w-7" />
                   </div>
                   <h2 className="text-lg font-bold text-primary mb-2">{cat.title}</h2>

@@ -39,9 +39,9 @@ const TrustSecurity = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {items.map((item) => (
-            <Card key={item.title} className="border-l-4 border-l-secondary">
+            <Card key={item.title} className="border-l-4 border-l-accent">
               <CardContent className="pt-6 flex gap-4">
-                <div className="shrink-0 w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                <div className="shrink-0 w-10 h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center">
                   <item.icon className="h-5 w-5" />
                 </div>
                 <div>
