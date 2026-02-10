@@ -7,78 +7,78 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 150 10% 15%;
+    --foreground: 240 20% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 150 10% 15%;
+    --card-foreground: 240 20% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 150 10% 15%;
+    --popover-foreground: 240 20% 15%;
 
-    --primary: 153 100% 20%;
+    --primary: 240 20% 24%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 42 38% 56%;
+    --secondary: 240 15% 40%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 140 15% 95%;
-    --muted-foreground: 150 8% 40%;
+    --muted: 240 10% 95%;
+    --muted-foreground: 240 10% 40%;
 
-    --accent: 42 38% 56%;
+    --accent: 240 15% 40%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 140 10% 85%;
-    --input: 140 10% 85%;
-    --ring: 153 100% 20%;
+    --border: 240 10% 85%;
+    --input: 240 10% 85%;
+    --ring: 240 20% 24%;
 
     --radius: 0.375rem;
 
-    --sidebar-background: 153 100% 20%;
+    --sidebar-background: 240 20% 24%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 42 38% 56%;
+    --sidebar-primary: 240 15% 40%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 153 80% 15%;
+    --sidebar-accent: 240 20% 18%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 153 60% 30%;
-    --sidebar-ring: 42 38% 56%;
+    --sidebar-border: 240 15% 35%;
+    --sidebar-ring: 240 15% 40%;
 
-    --icpc-green-light: 153 40% 95%;
-    --icpc-gold-light: 42 50% 95%;
+    --icpc-green-light: 240 15% 95%;
+    --icpc-gold-light: 240 10% 93%;
   }
 
   .dark {
-    --background: 150 10% 10%;
+    --background: 240 15% 10%;
     --foreground: 0 0% 95%;
-    --card: 150 10% 12%;
+    --card: 240 15% 12%;
     --card-foreground: 0 0% 95%;
-    --popover: 150 10% 12%;
+    --popover: 240 15% 12%;
     --popover-foreground: 0 0% 95%;
-    --primary: 153 80% 35%;
+    --primary: 240 20% 40%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 42 38% 50%;
+    --secondary: 240 15% 50%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 150 10% 18%;
-    --muted-foreground: 150 8% 60%;
-    --accent: 42 38% 50%;
+    --muted: 240 15% 18%;
+    --muted-foreground: 240 10% 60%;
+    --accent: 240 15% 50%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
-    --border: 150 10% 22%;
-    --input: 150 10% 22%;
-    --ring: 153 80% 35%;
-    --sidebar-background: 150 10% 8%;
+    --border: 240 15% 22%;
+    --input: 240 15% 22%;
+    --ring: 240 20% 40%;
+    --sidebar-background: 240 15% 8%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 42 38% 50%;
+    --sidebar-primary: 240 15% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 150 10% 15%;
+    --sidebar-accent: 240 15% 15%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 150 10% 22%;
-    --sidebar-ring: 42 38% 50%;
-    --icpc-green-light: 153 30% 15%;
-    --icpc-gold-light: 42 30% 15%;
+    --sidebar-border: 240 15% 22%;
+    --sidebar-ring: 240 15% 50%;
+    --icpc-green-light: 240 15% 15%;
+    --icpc-gold-light: 240 10% 15%;
   }
 }
 
