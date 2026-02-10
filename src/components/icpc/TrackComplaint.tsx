@@ -25,8 +25,8 @@ const TrackComplaint = () => {
   };
 
   return (
-    <section id="track" className="py-16 bg-icpc-green-light" aria-labelledby="track-title">
-      <div className="container max-w-3xl">
+    <section id="track" className="py-10 sm:py-16 bg-icpc-green-light" aria-labelledby="track-title">
+      <div className="container px-4 sm:px-6 max-w-3xl">
         <div className="text-center mb-10">
           <h2 id="track-title" className="text-2xl md:text-3xl font-bold text-primary mb-3">
             Track Your Complaint

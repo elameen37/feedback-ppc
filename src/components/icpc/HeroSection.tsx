@@ -24,11 +24,11 @@ const categories = [
 
 const HeroSection = () => {
   return (
-    <section id="home" className="bg-icpc-green-light py-16 md:py-24" aria-labelledby="hero-title">
-      <div className="container text-center">
+    <section id="home" className="bg-icpc-green-light py-10 sm:py-16 md:py-24" aria-labelledby="hero-title">
+      <div className="container px-4 sm:px-6 text-center">
         <h1
           id="hero-title"
-          className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4"
+          className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4 leading-tight"
         >
           ICPC Feedback & Complaint Tracking Portal
         </h1>
@@ -42,7 +42,7 @@ const HeroSection = () => {
           related offences. Your feedback strengthens our commitment to accountability.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto">
           {categories.map((cat) => (
             <a key={cat.title} href={cat.href} className="group">
               <Card className="h-full border-2 border-transparent hover:border-accent transition-colors group-focus-visible:ring-2 group-focus-visible:ring-ring">

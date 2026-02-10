@@ -26,8 +26,8 @@ const items = [
 
 const TrustSecurity = () => {
   return (
-    <section className="py-16 bg-icpc-gold-light" aria-labelledby="trust-title">
-      <div className="container max-w-4xl">
+    <section className="py-10 sm:py-16 bg-icpc-gold-light" aria-labelledby="trust-title">
+      <div className="container px-4 sm:px-6 max-w-4xl">
         <div className="text-center mb-12">
           <h2 id="trust-title" className="text-2xl md:text-3xl font-bold text-primary mb-3">
             Trust & Security
