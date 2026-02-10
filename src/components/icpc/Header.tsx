@@ -24,7 +24,9 @@ const Header = () => {
       <div className="bg-primary text-primary-foreground">
         <div className="container flex items-center justify-between py-3">
           <div className="flex items-center gap-3">
-            <img src="/icpc-logo.jpeg" alt="ICPC Official Seal - Independent Corrupt Practices and Other Related Offences Commission" className="h-12 w-12 rounded-full border-2 border-secondary object-cover" />
+            <a href="https://icpc.gov.ng/" target="_blank" rel="noopener noreferrer">
+              <img src="/icpc-logo.jpeg" alt="ICPC Official Seal - Independent Corrupt Practices and Other Related Offences Commission" className="h-12 w-12 rounded-full border-2 border-secondary object-cover cursor-pointer" />
+            </a>
             <div className="hidden sm:block">
               <p className="text-sm font-bold leading-tight tracking-wide font-sans">
                 Independent Corrupt Practices and  
