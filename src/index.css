@@ -105,3 +105,9 @@
 .animate-marquee {
   animation: marquee 20s linear infinite;
 }
+
+/* Ensure no horizontal overflow on any device */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}

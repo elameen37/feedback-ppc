@@ -45,21 +45,28 @@ const Header = () => {
 
       {/* Navigation bar */}
       <nav className="bg-primary/90 border-t border-primary-foreground/20" aria-label="Main navigation">
-        <div className="container flex items-center">
+        <div className="container flex items-center overflow-hidden">
           <ul className="hidden md:flex items-center gap-1 shrink-0">
             {navLinks.map(link => <li key={link.href}>
-                <a href={link.href} className="block px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-foreground/10 transition-colors rounded font-sans">
+                <a href={link.href} className="block px-3 lg:px-4 py-2.5 text-xs lg:text-sm font-medium text-primary-foreground hover:bg-primary-foreground/10 transition-colors rounded font-sans whitespace-nowrap">
                   {link.label}
                 </a>
               </li>)}
           </ul>
-          <div className="hidden md:block overflow-hidden ml-auto max-w-[40%]">
-            <div className="animate-marquee whitespace-nowrap text-sm font-medium text-accent">
+          <div className="hidden md:block overflow-hidden ml-auto max-w-[35%] lg:max-w-[40%]">
+            <div className="animate-marquee whitespace-nowrap text-xs lg:text-sm font-medium text-accent">
               📢 Latest: ICPC launches new anti-corruption campaign nationwide &nbsp;|&nbsp; Public feedback portal now live — submit your complaints today &nbsp;|&nbsp; ICPC partners with civil society for transparency reforms &nbsp;|&nbsp;
             </div>
           </div>
         </div>
       </nav>
+
+      {/* Mobile marquee */}
+      <div className="md:hidden bg-primary/90 border-t border-primary-foreground/10 overflow-hidden">
+        <div className="animate-marquee whitespace-nowrap py-2 text-xs font-medium text-accent px-4">
+          📢 Latest: ICPC launches new anti-corruption campaign nationwide &nbsp;|&nbsp; Public feedback portal now live &nbsp;|&nbsp; ICPC partners with civil society for transparency reforms &nbsp;|&nbsp;
+        </div>
+      </div>
 
       {/* Mobile menu */}
       {mobileOpen && <nav className="md:hidden bg-primary border-t border-primary-foreground/20" aria-label="Mobile navigation">

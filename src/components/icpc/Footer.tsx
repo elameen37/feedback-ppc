@@ -5,8 +5,8 @@ const Footer = () => {
 
   return (
     <footer id="contact" className="bg-primary text-primary-foreground" aria-label="Site footer">
-      <div className="container py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div className="container px-4 sm:px-6 py-8 sm:py-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10">
           {/* Column 1: ICPC info */}
           <div>
             <div className="flex items-center gap-3 mb-4">

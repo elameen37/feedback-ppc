@@ -10,8 +10,8 @@ const features = [
 
 const AdminDescription = () => {
   return (
-    <section className="py-16 bg-background" aria-labelledby="admin-title">
-      <div className="container max-w-3xl text-center">
+    <section className="py-10 sm:py-16 bg-background" aria-labelledby="admin-title">
+      <div className="container px-4 sm:px-6 max-w-3xl text-center">
         <h2 id="admin-title" className="text-2xl md:text-3xl font-bold text-primary mb-3">
           Officer & Admin Dashboard
         </h2>

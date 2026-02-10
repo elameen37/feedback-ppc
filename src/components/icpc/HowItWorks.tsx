@@ -9,8 +9,8 @@ const steps = [
 
 const HowItWorks = () => {
   return (
-    <section id="about" className="py-16 bg-background" aria-labelledby="how-title">
-      <div className="container max-w-4xl">
+    <section id="about" className="py-10 sm:py-16 bg-background" aria-labelledby="how-title">
+      <div className="container px-4 sm:px-6 max-w-4xl">
         <div className="text-center mb-12">
           <h2 id="how-title" className="text-2xl md:text-3xl font-bold text-primary mb-3">
             How It Works

@@ -239,8 +239,8 @@ const PublicInterestForm = () => {
 
 const FeedbackForms = () => {
   return (
-    <section id="submit" className="py-16 bg-background" aria-labelledby="submit-title">
-      <div className="container max-w-4xl">
+    <section id="submit" className="py-10 sm:py-16 bg-background" aria-labelledby="submit-title">
+      <div className="container px-4 sm:px-6 max-w-4xl">
         <div className="text-center mb-10">
           <h2 id="submit-title" className="text-2xl md:text-3xl font-bold text-primary mb-3">
             Submit Your Feedback
@@ -253,10 +253,10 @@ const FeedbackForms = () => {
         <Card>
           <CardContent className="pt-6">
             <Tabs defaultValue="complainant" className="w-full">
-              <TabsList className="w-full grid grid-cols-3 mb-6">
-                <TabsTrigger value="complainant" className="font-sans text-xs md:text-sm">Complainants</TabsTrigger>
-                <TabsTrigger value="respondent" className="font-sans text-xs md:text-sm">Respondents</TabsTrigger>
-                <TabsTrigger value="public" className="font-sans text-xs md:text-sm">Public Interest</TabsTrigger>
+              <TabsList className="w-full grid grid-cols-3 mb-6 h-auto">
+                <TabsTrigger value="complainant" className="font-sans text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-3">Complainants</TabsTrigger>
+                <TabsTrigger value="respondent" className="font-sans text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-3">Respondents</TabsTrigger>
+                <TabsTrigger value="public" className="font-sans text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-3">Public Interest</TabsTrigger>
               </TabsList>
               <TabsContent value="complainant">
                 <CardHeader className="px-0 pt-0">
