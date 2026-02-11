@@ -11,6 +11,9 @@ const navLinks = [{
   label: "Track Complaint",
   href: "#track"
 }, {
+  label: "Self-Reporting",
+  href: "/self-reporting"
+}, {
   label: "About",
   href: "#about"
 }, {
