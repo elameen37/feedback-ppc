@@ -5,6 +5,9 @@ const navLinks = [{
   label: "Home",
   href: "#home"
 }, {
+  label: "About",
+  href: "#about"
+}, {
   label: "Submit Feedback",
   href: "#submit"
 }, {
@@ -13,9 +16,6 @@ const navLinks = [{
 }, {
   label: "Self-Reporting",
   href: "/self-reporting"
-}, {
-  label: "About",
-  href: "#about"
 }, {
   label: "Contact",
   href: "#contact"
