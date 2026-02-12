@@ -5,14 +5,14 @@ const navLinks = [{
   label: "Home",
   href: "/"
 }, {
-  label: "About",
-  href: "/#about"
-}, {
   label: "Submit Feedback",
   href: "/#submit"
 }, {
   label: "Self-Reporting",
   href: "/self-reporting"
+}, {
+  label: "Track Complaint",
+  href: "/track-complaint"
 }];
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
