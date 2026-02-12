@@ -107,7 +107,13 @@
 }
 
 /* Ensure no horizontal overflow on any device */
-html, body {
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+body {
   overflow-x: hidden;
   width: 100%;
 }

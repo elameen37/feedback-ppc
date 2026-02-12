@@ -6,6 +6,7 @@ import HowItWorks from "@/components/icpc/HowItWorks";
 import TrustSecurity from "@/components/icpc/TrustSecurity";
 import AdminDescription from "@/components/icpc/AdminDescription";
 import Footer from "@/components/icpc/Footer";
+import BackToTop from "@/components/icpc/BackToTop";
 
 const Index = () => {
   return (
@@ -20,6 +21,7 @@ const Index = () => {
         <AdminDescription />
       </main>
       <Footer />
+      <BackToTop />
     </div>
   );
 };
