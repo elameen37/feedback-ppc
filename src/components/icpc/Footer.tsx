@@ -56,9 +56,10 @@ const Footer = () => {
           <div>
             <h3 className="text-sm font-bold mb-4 font-sans uppercase tracking-wider">Quick Links</h3>
             <ul className="space-y-2 text-sm opacity-90 font-sans">
-              <li><a href="#home" className="hover:underline">Home</a></li>
-              <li><a href="#submit" className="hover:underline">Submit Feedback</a></li>
-              <li><a href="#track" className="hover:underline">Track Complaint</a></li>
+              <li><a href="/" className="hover:underline">Home</a></li>
+              <li><a href="/#submit" className="hover:underline">Submit Feedback</a></li>
+              <li><a href="/track-complaint" className="hover:underline">Track Complaint</a></li>
+              <li><a href="/self-reporting" className="hover:underline">Self-Reporting</a></li>
               <li><a href="https://icpc.gov.ng" className="hover:underline" target="_blank" rel="noopener noreferrer">ICPC Act</a></li>
               <li><a href="https://icpc.gov.ng" className="hover:underline" target="_blank" rel="noopener noreferrer">Privacy Policy</a></li>
               <li><a href="https://icpc.gov.ng" className="hover:underline" target="_blank" rel="noopener noreferrer">Terms of Service</a></li>
