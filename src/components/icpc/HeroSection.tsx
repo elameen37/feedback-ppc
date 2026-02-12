@@ -1,5 +1,7 @@
 import { FileText, MessageSquare, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const categories = [
   {
@@ -36,11 +38,20 @@ const HeroSection = () => {
           A transparent, secure platform for submitting and tracking complaints,
           responses, and public interest reports.
         </p>
-        <p className="text-sm text-muted-foreground max-w-2xl mx-auto mb-12 font-sans">
+        <p className="text-sm text-muted-foreground max-w-2xl mx-auto mb-8 font-sans">
           The Independent Corrupt Practices and Other Related Offences Commission (ICPC) is
           constitutionally mandated to receive and investigate complaints of corruption and
           related offences. Your feedback strengthens our commitment to accountability.
         </p>
+
+        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-12">
+          <Button asChild size="lg" variant="default">
+            <Link to="/track-complaint">Track Complaint</Link>
+          </Button>
+          <Button asChild size="lg" variant="accent">
+            <Link to="/self-reporting#tracker">Track Disclosure</Link>
+          </Button>
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto">
           {categories.map((cat) => (
