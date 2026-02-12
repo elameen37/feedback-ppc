@@ -3,22 +3,16 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 const navLinks = [{
   label: "Home",
-  href: "#home"
+  href: "/"
 }, {
   label: "About",
-  href: "#about"
+  href: "/#about"
 }, {
   label: "Submit Feedback",
-  href: "#submit"
-}, {
-  label: "Track Complaint",
-  href: "#track"
+  href: "/#submit"
 }, {
   label: "Self-Reporting",
   href: "/self-reporting"
-}, {
-  label: "Contact",
-  href: "#contact"
 }];
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);

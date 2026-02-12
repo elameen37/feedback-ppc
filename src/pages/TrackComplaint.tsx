@@ -1,11 +1,9 @@
 import Header from "@/components/icpc/Header";
 import Footer from "@/components/icpc/Footer";
+import TrackComplaintSection from "@/components/icpc/TrackComplaint";
 import BackToTop from "@/components/icpc/BackToTop";
-import WhoShouldUse from "@/components/icpc/self-reporting/WhoShouldUse";
-import SelfReportingForms from "@/components/icpc/self-reporting/SelfReportingForms";
-import SelfReportingTracker from "@/components/icpc/self-reporting/SelfReportingTracker";
 
-const SelfReporting = () => {
+const TrackComplaintPage = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -13,18 +11,14 @@ const SelfReporting = () => {
         <section className="bg-primary text-primary-foreground py-12 sm:py-16">
           <div className="container px-4 sm:px-6 max-w-4xl text-center">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
-              ICPC Self-Reporting & Voluntary Disclosure Portal
+              Track Your Complaint
             </h1>
             <p className="text-sm sm:text-base opacity-90 font-sans max-w-2xl mx-auto">
-              A secure platform for voluntary disclosure, cooperation, and corrective compliance.
-              Your courage to come forward strengthens our nation's fight against corruption.
+              Enter your tracking reference ID below to view the current status of your complaint submission.
             </p>
           </div>
         </section>
-
-        <WhoShouldUse />
-        <SelfReportingForms />
-        <SelfReportingTracker />
+        <TrackComplaintSection />
       </main>
       <Footer />
       <BackToTop />
@@ -32,4 +26,4 @@ const SelfReporting = () => {
   );
 };
 
-export default SelfReporting;
+export default TrackComplaintPage;
