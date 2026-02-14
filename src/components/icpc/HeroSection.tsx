@@ -1,6 +1,7 @@
 import { FileText, MessageSquare, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
+
 const categories = [
   {
     icon: FileText,
