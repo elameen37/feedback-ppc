@@ -1,5 +1,6 @@
 import { FileText, MessageSquare, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 
 const categories = [
@@ -7,19 +8,19 @@ const categories = [
     icon: FileText,
     title: "Complainants",
     description: "Report corruption, abuse of office, or misconduct by public officials.",
-    href: "#submit",
+    href: "/submit-feedback",
   },
   {
     icon: MessageSquare,
     title: "Respondents",
     description: "Respond to queries, investigations, or requests for clarification.",
-    href: "#submit",
+    href: "/submit-feedback",
   },
   {
     icon: Users,
     title: "Public Interest",
     description: "Share policy suggestions, civic concerns, or anti-corruption ideas.",
-    href: "#submit",
+    href: "/submit-feedback",
   },
 ];
 
@@ -45,7 +46,7 @@ const HeroSection = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto">
           {categories.map((cat) => (
-            <a key={cat.title} href={cat.href} className="group">
+            <Link key={cat.title} to={cat.href} className="group">
               <Card className="h-full border-2 border-transparent hover:border-accent transition-colors group-focus-visible:ring-2 group-focus-visible:ring-ring">
                 <CardContent className="pt-6 text-center">
                   <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-accent/10 text-accent mb-4">
@@ -55,7 +56,7 @@ const HeroSection = () => {
                   <p className="text-sm text-muted-foreground font-sans">{cat.description}</p>
                 </CardContent>
               </Card>
-            </a>
+            </Link>
           ))}
         </div>
 

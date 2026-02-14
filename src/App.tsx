@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import SelfReporting from "./pages/SelfReporting";
-import TrackComplaintPage from "./pages/TrackComplaint";
+import SubmitFeedbackPage from "./pages/SubmitFeedback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -18,8 +18,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/submit-feedback" element={<SubmitFeedbackPage />} />
           <Route path="/self-reporting" element={<SelfReporting />} />
-          <Route path="/track-complaint" element={<TrackComplaintPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
