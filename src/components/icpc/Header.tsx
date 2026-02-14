@@ -10,9 +10,6 @@ const navLinks = [{
 }, {
   label: "Self-Reporting",
   href: "/self-reporting"
-}, {
-  label: "Track Complaint",
-  href: "/track-complaint"
 }];
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
