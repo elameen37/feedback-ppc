@@ -6,7 +6,7 @@ const navLinks = [{
   href: "/"
 }, {
   label: "Submit Feedback",
-  href: "/#submit"
+  href: "/submit-feedback"
 }, {
   label: "Self-Reporting",
   href: "/self-reporting"

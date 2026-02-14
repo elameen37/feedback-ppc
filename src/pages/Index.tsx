@@ -1,6 +1,5 @@
 import Header from "@/components/icpc/Header";
 import HeroSection from "@/components/icpc/HeroSection";
-import FeedbackForms from "@/components/icpc/FeedbackForms";
 import HowItWorks from "@/components/icpc/HowItWorks";
 import TrustSecurity from "@/components/icpc/TrustSecurity";
 import AdminDescription from "@/components/icpc/AdminDescription";
@@ -13,7 +12,6 @@ const Index = () => {
       <Header />
       <main className="flex-1">
         <HeroSection />
-        <FeedbackForms />
         <HowItWorks />
         <TrustSecurity />
         <AdminDescription />
