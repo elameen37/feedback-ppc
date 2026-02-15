@@ -56,7 +56,7 @@ const Footer = () => {
           <div>
             <h3 className="text-sm font-bold mb-4 font-sans uppercase tracking-wider">Quick Links</h3>
             <ul className="space-y-2 text-sm opacity-90 font-sans">
-              <li><a href="/" className="hover:underline">Home</a></li>
+              <li><a href="/" className="hover:underline">About</a></li>
               <li><a href="/#submit" className="hover:underline">Submit Feedback</a></li>
               <li><a href="/track-complaint" className="hover:underline">Track Complaint</a></li>
               <li><a href="/self-reporting" className="hover:underline">Self-Reporting</a></li>
