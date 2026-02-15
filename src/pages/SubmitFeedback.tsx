@@ -2,6 +2,8 @@ import { useState } from "react";
 import Header from "@/components/icpc/Header";
 import Footer from "@/components/icpc/Footer";
 import FeedbackForms from "@/components/icpc/FeedbackForms";
+import HowItWorks from "@/components/icpc/HowItWorks";
+import TrustSecurity from "@/components/icpc/TrustSecurity";
 import TrackComplaintDialog from "@/components/icpc/TrackComplaintDialog";
 import BackToTop from "@/components/icpc/BackToTop";
 import { Button } from "@/components/ui/button";
@@ -34,6 +36,8 @@ const SubmitFeedbackPage = () => {
             </Button>
           </div>
         </section>
+        <HowItWorks />
+        <TrustSecurity />
         <FeedbackForms />
       </main>
       <Footer />
