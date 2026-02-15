@@ -1,10 +1,16 @@
+import { useState } from "react";
 import Header from "@/components/icpc/Header";
 import Footer from "@/components/icpc/Footer";
 import BackToTop from "@/components/icpc/BackToTop";
 import WhoShouldUse from "@/components/icpc/self-reporting/WhoShouldUse";
 import SelfReportingForms from "@/components/icpc/self-reporting/SelfReportingForms";
+import TrackDisclosureDialog from "@/components/icpc/self-reporting/TrackDisclosureDialog";
+import { Button } from "@/components/ui/button";
+import { Search } from "lucide-react";
 
 const SelfReporting = () => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -18,6 +24,15 @@ const SelfReporting = () => {
               A secure platform for voluntary disclosure, cooperation, and corrective compliance.
               Your courage to come forward strengthens our nation's fight against corruption.
             </p>
+            <Button
+              size="lg"
+              variant="secondary"
+              className="font-sans gap-2"
+              onClick={() => setDialogOpen(true)}
+            >
+              <Search className="h-4 w-4" />
+              Track Disclosure
+            </Button>
           </div>
         </section>
 
@@ -26,6 +41,7 @@ const SelfReporting = () => {
       </main>
       <Footer />
       <BackToTop />
+      <TrackDisclosureDialog open={dialogOpen} onOpenChange={setDialogOpen} />
     </div>
   );
 };
