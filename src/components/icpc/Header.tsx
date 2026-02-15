@@ -13,25 +13,25 @@ const navLinks = [{
 }];
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  return <header className="sticky top-0 z-50 w-full shadow-lg">
+  return <header className="sticky top-0 z-50 w-full bg-primary shadow-lg">
       {/* Unified top bar */}
-      <div className="bg-background text-foreground">
+      <div className="text-primary-foreground">
         <div className="container flex items-center justify-between py-2.5">
           <div className="flex items-center gap-3">
             <a href="https://icpc.gov.ng/" target="_blank" rel="noopener noreferrer">
-              <img src="/icpc-logo.jpeg" alt="ICPC Official Seal" className="h-10 w-10 rounded-full border-2 border-border object-cover cursor-pointer" />
+              <img src="/icpc-logo.jpeg" alt="ICPC Official Seal" className="h-10 w-10 rounded-full border-2 border-primary-foreground/30 object-cover cursor-pointer" />
             </a>
             <div className="hidden sm:block">
-              <p className="text-sm font-bold leading-tight tracking-wide font-sans text-foreground">
+              <p className="text-sm font-bold leading-tight tracking-wide font-sans">
                 Independent Corrupt Practices and
               </p>
-              <p className="text-sm font-bold leading-tight tracking-wide font-sans text-foreground">
+              <p className="text-sm font-bold leading-tight tracking-wide font-sans">
                 Other Related Offences Commission
               </p>
             </div>
-            <p className="block sm:hidden text-xs font-bold font-sans text-foreground">ICPC Nigeria</p>
+            <p className="block sm:hidden text-xs font-bold font-sans">ICPC Nigeria</p>
           </div>
-          <Button variant="ghost" size="icon" className="text-foreground hover:bg-muted md:hidden" onClick={() => setMobileOpen(!mobileOpen)} aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}>
+          <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10 md:hidden" onClick={() => setMobileOpen(!mobileOpen)} aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}>
             {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </Button>
         </div>
