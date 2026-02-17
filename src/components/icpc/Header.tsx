@@ -1,20 +1,32 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-const navLinks = [{
-  label: "About",
-  href: "/"
-}, {
-  label: "Submit Feedback",
-  href: "/submit-feedback"
-}, {
-  label: "Self-Reporting",
-  href: "/self-reporting"
-}];
+import { useAuth } from "@/hooks/useAuth";
+
+const navLinks = [
+  { label: "About", href: "/" },
+  { label: "Submit Feedback", href: "/submit-feedback" },
+  { label: "Self-Reporting", href: "/self-reporting" },
+];
+
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  return <header className="sticky top-0 z-50 w-full bg-primary shadow-lg">
-      {/* Unified top bar */}
+  let auth: ReturnType<typeof useAuth> | null = null;
+  try {
+    auth = useAuth();
+  } catch {
+    // AuthProvider not mounted yet
+  }
+
+  const allLinks = [
+    ...navLinks,
+    ...(auth?.user && (auth.role === "admin" || auth.role === "officer")
+      ? [{ label: "Dashboard", href: "/dashboard" }]
+      : [{ label: "Officer Login", href: "/auth" }]),
+  ];
+
+  return (
+    <header className="sticky top-0 z-50 w-full bg-primary shadow-lg">
       <div className="text-primary-foreground">
         <div className="container flex items-center justify-between py-2.5">
           <div className="flex items-center gap-3">
@@ -37,15 +49,16 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Navigation bar */}
       <nav className="bg-primary-foreground/10 backdrop-blur-sm" aria-label="Main navigation">
         <div className="container flex items-center overflow-hidden">
           <ul className="hidden md:flex items-center shrink-0">
-            {navLinks.map(link => <li key={link.href}>
+            {allLinks.map(link => (
+              <li key={link.href}>
                 <a href={link.href} className="block px-3 lg:px-4 py-2 text-xs lg:text-sm font-medium text-primary-foreground hover:bg-primary-foreground/15 transition-colors font-sans whitespace-nowrap">
                   {link.label}
                 </a>
-              </li>)}
+              </li>
+            ))}
           </ul>
           <div className="hidden md:block overflow-hidden ml-auto max-w-[35%] lg:max-w-[40%]">
             <div className="animate-marquee whitespace-nowrap text-xs lg:text-sm font-medium text-accent">
@@ -55,23 +68,27 @@ const Header = () => {
         </div>
       </nav>
 
-      {/* Mobile marquee */}
       <div className="md:hidden bg-primary-foreground/5 overflow-hidden">
         <div className="animate-marquee whitespace-nowrap py-1.5 text-xs font-medium text-accent px-4">
           📢 Latest: ICPC launches new anti-corruption campaign nationwide &nbsp;|&nbsp; Public feedback portal now live &nbsp;|&nbsp; ICPC partners with civil society for transparency reforms &nbsp;|&nbsp;
         </div>
       </div>
 
-      {/* Mobile menu */}
-      {mobileOpen && <nav className="md:hidden bg-primary/95 backdrop-blur-sm border-t border-primary-foreground/10" aria-label="Mobile navigation">
+      {mobileOpen && (
+        <nav className="md:hidden bg-primary/95 backdrop-blur-sm border-t border-primary-foreground/10" aria-label="Mobile navigation">
           <ul className="container py-2 space-y-0.5">
-            {navLinks.map(link => <li key={link.href}>
+            {allLinks.map(link => (
+              <li key={link.href}>
                 <a href={link.href} className="block px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-foreground/10 rounded transition-colors font-sans" onClick={() => setMobileOpen(false)}>
                   {link.label}
                 </a>
-              </li>)}
+              </li>
+            ))}
           </ul>
-        </nav>}
-    </header>;
+        </nav>
+      )}
+    </header>
+  );
 };
+
 export default Header;
