@@ -15,7 +15,11 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { Shield, Upload } from "lucide-react";
+import { Shield, Upload, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
+
+type ComplaintCategory = Database["public"]["Enums"]["complaint_category"];
 
 const generateTrackingId = () => {
   const prefix = "ICPC";
@@ -24,7 +28,6 @@ const generateTrackingId = () => {
   return `${prefix}-${year}-${random}`;
 };
 
-// Simple math CAPTCHA
 const useCaptcha = () => {
   const [a] = useState(() => Math.floor(Math.random() * 10) + 1);
   const [b] = useState(() => Math.floor(Math.random() * 10) + 1);
@@ -39,9 +42,10 @@ const ComplainantForm = () => {
   const [description, setDescription] = useState("");
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const captcha = useCaptcha();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!category || !description.trim()) {
       toast({ title: "Validation Error", description: "Please fill in all required fields.", variant: "destructive" });
@@ -51,11 +55,32 @@ const ComplainantForm = () => {
       toast({ title: "CAPTCHA Failed", description: "Please solve the arithmetic question correctly.", variant: "destructive" });
       return;
     }
+
+    setSubmitting(true);
     const trackingId = generateTrackingId();
-    toast({
-      title: "Complaint Submitted",
-      description: `Your tracking reference ID is: ${trackingId}. Please save this for future reference.`,
+    const { error } = await supabase.from("complaints").insert({
+      tracking_id: trackingId,
+      anonymous,
+      submitter_name: anonymous ? null : name || null,
+      submitter_contact: anonymous ? null : contact || null,
+      category: category as ComplaintCategory,
+      description: description.trim(),
+      submission_type: "complainant",
     });
+    setSubmitting(false);
+
+    if (error) {
+      toast({ title: "Submission Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({
+        title: "Complaint Submitted",
+        description: `Your tracking reference ID is: ${trackingId}. Please save this for future reference.`,
+      });
+      setCategory("");
+      setDescription("");
+      setName("");
+      setContact("");
+    }
   };
 
   return (
@@ -63,12 +88,7 @@ const ComplainantForm = () => {
       <div className="flex items-center gap-3 p-3 rounded-md bg-icpc-green-light">
         <Shield className="h-5 w-5 text-primary shrink-0" />
         <div className="flex items-center gap-2">
-          <Switch
-            id="anonymous"
-            checked={anonymous}
-            onCheckedChange={setAnonymous}
-            aria-label="Submit anonymously"
-          />
+          <Switch id="anonymous" checked={anonymous} onCheckedChange={setAnonymous} aria-label="Submit anonymously" />
           <Label htmlFor="anonymous" className="text-sm font-sans cursor-pointer">
             Submit anonymously (your identity will be protected)
           </Label>
@@ -91,12 +111,10 @@ const ComplainantForm = () => {
       <div className="space-y-2">
         <Label htmlFor="comp-category" className="font-sans">Complaint Category *</Label>
         <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger id="comp-category">
-            <SelectValue placeholder="Select a category" />
-          </SelectTrigger>
+          <SelectTrigger id="comp-category"><SelectValue placeholder="Select a category" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="corruption">Corruption</SelectItem>
-            <SelectItem value="abuse-of-office">Abuse of Office</SelectItem>
+            <SelectItem value="abuse_of_office">Abuse of Office</SelectItem>
             <SelectItem value="misconduct">Misconduct by Public Officials</SelectItem>
           </SelectContent>
         </Select>
@@ -124,7 +142,10 @@ const ComplainantForm = () => {
         </div>
       </div>
 
-      <Button type="submit" className="w-full md:w-auto font-sans">Submit Complaint</Button>
+      <Button type="submit" className="w-full md:w-auto font-sans gap-2" disabled={submitting}>
+        {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+        {submitting ? "Submitting..." : "Submit Complaint"}
+      </Button>
     </form>
   );
 };
@@ -134,8 +155,9 @@ const RespondentForm = () => {
   const [name, setName] = useState("");
   const [response, setResponse] = useState("");
   const [declared, setDeclared] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!refId.trim() || !name.trim() || !response.trim()) {
       toast({ title: "Validation Error", description: "Please fill in all required fields.", variant: "destructive" });
@@ -145,7 +167,31 @@ const RespondentForm = () => {
       toast({ title: "Declaration Required", description: "You must confirm the truthfulness of your response.", variant: "destructive" });
       return;
     }
-    toast({ title: "Response Submitted", description: "Your response has been recorded successfully." });
+
+    setSubmitting(true);
+    const trackingId = generateTrackingId();
+    const { error } = await supabase.from("complaints").insert({
+      tracking_id: trackingId,
+      anonymous: false,
+      submitter_name: name.trim(),
+      category: "misconduct" as ComplaintCategory,
+      description: response.trim(),
+      submission_type: "respondent",
+      reference_id: refId.trim(),
+      response_text: response.trim(),
+      declaration_confirmed: true,
+    });
+    setSubmitting(false);
+
+    if (error) {
+      toast({ title: "Submission Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Response Submitted", description: "Your response has been recorded successfully." });
+      setRefId("");
+      setName("");
+      setResponse("");
+      setDeclared(false);
+    }
   };
 
   return (
@@ -154,17 +200,14 @@ const RespondentForm = () => {
         <Label htmlFor="resp-ref" className="font-sans">Reference ID *</Label>
         <Input id="resp-ref" placeholder="e.g. ICPC-2026-ABC123" value={refId} onChange={(e) => setRefId(e.target.value)} maxLength={30} />
       </div>
-
       <div className="space-y-2">
         <Label htmlFor="resp-name" className="font-sans">Name / Organisation *</Label>
         <Input id="resp-name" placeholder="Enter name or organisation" value={name} onChange={(e) => setName(e.target.value)} maxLength={150} />
       </div>
-
       <div className="space-y-2">
         <Label htmlFor="resp-text" className="font-sans">Response *</Label>
         <Textarea id="resp-text" placeholder="Provide your official response..." rows={5} value={response} onChange={(e) => setResponse(e.target.value)} maxLength={5000} />
       </div>
-
       <div className="space-y-2">
         <Label htmlFor="resp-file" className="font-sans">Attachments</Label>
         <div className="flex items-center gap-2">
@@ -172,7 +215,6 @@ const RespondentForm = () => {
           <Input id="resp-file" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" className="font-sans" />
         </div>
       </div>
-
       <div className="flex items-start gap-3">
         <Checkbox id="resp-declare" checked={declared} onCheckedChange={(c) => setDeclared(c === true)} />
         <Label htmlFor="resp-declare" className="text-sm font-sans leading-relaxed cursor-pointer">
@@ -180,8 +222,10 @@ const RespondentForm = () => {
           I understand that providing false information may attract legal consequences under the ICPC Act.
         </Label>
       </div>
-
-      <Button type="submit" className="w-full md:w-auto font-sans">Submit Response</Button>
+      <Button type="submit" className="w-full md:w-auto font-sans gap-2" disabled={submitting}>
+        {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+        {submitting ? "Submitting..." : "Submit Response"}
+      </Button>
     </form>
   );
 };
@@ -189,14 +233,33 @@ const RespondentForm = () => {
 const PublicInterestForm = () => {
   const [topic, setTopic] = useState("");
   const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!topic || !message.trim()) {
       toast({ title: "Validation Error", description: "Please select a topic and enter your message.", variant: "destructive" });
       return;
     }
-    toast({ title: "Feedback Received", description: "Thank you for your contribution to public accountability." });
+
+    setSubmitting(true);
+    const trackingId = generateTrackingId();
+    const { error } = await supabase.from("complaints").insert({
+      tracking_id: trackingId,
+      anonymous: true,
+      category: topic as ComplaintCategory,
+      description: message.trim(),
+      submission_type: "public_interest",
+    });
+    setSubmitting(false);
+
+    if (error) {
+      toast({ title: "Submission Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Feedback Received", description: "Thank you for your contribution to public accountability." });
+      setTopic("");
+      setMessage("");
+    }
   };
 
   return (
@@ -211,28 +274,26 @@ const PublicInterestForm = () => {
           <Input id="pub-contact" placeholder="Email or phone" maxLength={150} />
         </div>
       </div>
-
       <div className="space-y-2">
         <Label htmlFor="pub-topic" className="font-sans">Topic *</Label>
         <Select value={topic} onValueChange={setTopic}>
-          <SelectTrigger id="pub-topic">
-            <SelectValue placeholder="Select a topic" />
-          </SelectTrigger>
+          <SelectTrigger id="pub-topic"><SelectValue placeholder="Select a topic" /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="policy-suggestion">Policy Suggestion</SelectItem>
-            <SelectItem value="public-service-concern">Public Service Concern</SelectItem>
-            <SelectItem value="anti-corruption-idea">Anti-Corruption Idea</SelectItem>
+            <SelectItem value="policy_suggestion">Policy Suggestion</SelectItem>
+            <SelectItem value="public_service_concern">Public Service Concern</SelectItem>
+            <SelectItem value="anti_corruption_idea">Anti-Corruption Idea</SelectItem>
             <SelectItem value="observation">Observation</SelectItem>
           </SelectContent>
         </Select>
       </div>
-
       <div className="space-y-2">
         <Label htmlFor="pub-message" className="font-sans">Message *</Label>
         <Textarea id="pub-message" placeholder="Share your feedback, suggestion, or concern..." rows={5} value={message} onChange={(e) => setMessage(e.target.value)} maxLength={5000} />
       </div>
-
-      <Button type="submit" className="w-full md:w-auto font-sans">Submit Feedback</Button>
+      <Button type="submit" className="w-full md:w-auto font-sans gap-2" disabled={submitting}>
+        {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+        {submitting ? "Submitting..." : "Submit Feedback"}
+      </Button>
     </form>
   );
 };
@@ -249,7 +310,6 @@ const FeedbackForms = () => {
             Select the appropriate category below and complete the form. All fields marked with * are required.
           </p>
         </div>
-
         <Card>
           <CardContent className="pt-6">
             <Tabs defaultValue="complainant" className="w-full">
@@ -262,8 +322,7 @@ const FeedbackForms = () => {
                 <CardHeader className="px-0 pt-0">
                   <CardTitle className="text-lg text-primary">Report Corruption or Misconduct</CardTitle>
                   <CardDescription className="font-sans">
-                    Use this form to report corruption, abuse of office, or misconduct by public officials.
-                    You may submit anonymously.
+                    Use this form to report corruption, abuse of office, or misconduct by public officials. You may submit anonymously.
                   </CardDescription>
                 </CardHeader>
                 <ComplainantForm />
