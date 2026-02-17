@@ -18,6 +18,7 @@ import { toast } from "@/hooks/use-toast";
 import { Shield, Upload, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { sendNotification } from "@/lib/notifications";
 
 type ComplaintCategory = Database["public"]["Enums"]["complaint_category"];
 
@@ -72,6 +73,15 @@ const ComplainantForm = () => {
     if (error) {
       toast({ title: "Submission Error", description: error.message, variant: "destructive" });
     } else {
+      // Send notification (fire-and-forget)
+      sendNotification({
+        type: "new_submission",
+        complaint_id: "",
+        tracking_id: trackingId,
+        category,
+        description: description.trim().substring(0, 200),
+        submitter_email: anonymous ? undefined : contact || undefined,
+      });
       toast({
         title: "Complaint Submitted",
         description: `Your tracking reference ID is: ${trackingId}. Please save this for future reference.`,
@@ -186,6 +196,13 @@ const RespondentForm = () => {
     if (error) {
       toast({ title: "Submission Error", description: error.message, variant: "destructive" });
     } else {
+      sendNotification({
+        type: "new_submission",
+        complaint_id: "",
+        tracking_id: trackingId,
+        category: "misconduct",
+        description: response.trim().substring(0, 200),
+      });
       toast({ title: "Response Submitted", description: "Your response has been recorded successfully." });
       setRefId("");
       setName("");
@@ -256,6 +273,13 @@ const PublicInterestForm = () => {
     if (error) {
       toast({ title: "Submission Error", description: error.message, variant: "destructive" });
     } else {
+      sendNotification({
+        type: "new_submission",
+        complaint_id: "",
+        tracking_id: trackingId,
+        category: topic,
+        description: message.trim().substring(0, 200),
+      });
       toast({ title: "Feedback Received", description: "Thank you for your contribution to public accountability." });
       setTopic("");
       setMessage("");
