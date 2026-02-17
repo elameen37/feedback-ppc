@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { LogOut, Search, FileDown, Filter, Clock, Eye } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
+import { sendNotification } from "@/lib/notifications";
 
 type Complaint = Tables<"complaints">;
 type AuditLog = Tables<"audit_logs">;
@@ -97,6 +98,18 @@ const Dashboard = () => {
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
+      // Send status change notification
+      sendNotification({
+        type: "status_change",
+        complaint_id: selectedComplaint.id,
+        tracking_id: selectedComplaint.tracking_id,
+        category: selectedComplaint.category,
+        old_status: selectedComplaint.status,
+        new_status: newStatus,
+        submitter_email: selectedComplaint.submitter_contact?.includes("@")
+          ? selectedComplaint.submitter_contact
+          : undefined,
+      });
       toast({ title: "Status Updated", description: `Complaint ${selectedComplaint.tracking_id} updated to ${newStatus}.` });
       setSelectedComplaint({ ...selectedComplaint, status: newStatus as Complaint["status"] });
       fetchComplaints();
