@@ -4,8 +4,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Upload } from "lucide-react";
+import { Upload, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import TrackingIdBanner from "@/components/icpc/TrackingIdBanner";
 
 const generateTrackingId = () => {
   const prefix = "ICPC-SR";
@@ -21,12 +23,14 @@ const OrganizationalForm = () => {
   const [description, setDescription] = useState("");
   const [correctiveSteps, setCorrectiveSteps] = useState("");
   const [declared, setDeclared] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submittedTrackingId, setSubmittedTrackingId] = useState<string | null>(null);
 
   const [captchaA] = useState(() => Math.floor(Math.random() * 10) + 1);
   const [captchaB] = useState(() => Math.floor(Math.random() * 10) + 1);
   const [captchaAnswer, setCaptchaAnswer] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!orgName.trim() || !complianceOfficer.trim() || !description.trim()) {
       toast({ title: "Validation Error", description: "Please fill in all required fields.", variant: "destructive" });
@@ -40,15 +44,36 @@ const OrganizationalForm = () => {
       toast({ title: "CAPTCHA Failed", description: "Please solve the arithmetic question correctly.", variant: "destructive" });
       return;
     }
+
+    setSubmitting(true);
     const trackingId = generateTrackingId();
-    toast({
-      title: "Disclosure Submitted",
-      description: `Your tracking reference ID is: ${trackingId}. Please save this for future reference.`,
+    const fullDescription = `Organization: ${orgName}${rcNumber ? ` (RC: ${rcNumber})` : ""}\nCompliance Officer: ${complianceOfficer}\n\n${description}${correctiveSteps ? `\n\nCorrective Steps Taken:\n${correctiveSteps}` : ""}`;
+    const { error } = await supabase.from("complaints").insert({
+      tracking_id: trackingId,
+      anonymous: false,
+      submitter_name: complianceOfficer.trim(),
+      category: "self_report_organization",
+      description: fullDescription.trim(),
+      submission_type: "self_report",
+      declaration_confirmed: true,
     });
+    setSubmitting(false);
+
+    if (error) {
+      toast({ title: "Submission Error", description: error.message, variant: "destructive" });
+    } else {
+      setSubmittedTrackingId(trackingId);
+      setOrgName(""); setRcNumber(""); setComplianceOfficer("");
+      setDescription(""); setCorrectiveSteps(""); setDeclared(false); setCaptchaAnswer("");
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {submittedTrackingId && (
+        <TrackingIdBanner trackingId={submittedTrackingId} />
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="org-name" className="font-sans">Organization Name *</Label>
@@ -101,7 +126,10 @@ const OrganizationalForm = () => {
         </div>
       </div>
 
-      <Button type="submit" className="w-full md:w-auto font-sans">Submit Disclosure</Button>
+      <Button type="submit" className="w-full md:w-auto font-sans gap-2" disabled={submitting}>
+        {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+        {submitting ? "Submitting..." : "Submit Disclosure"}
+      </Button>
     </form>
   );
 };

@@ -19,6 +19,7 @@ import { Shield, Upload, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 import { sendNotification } from "@/lib/notifications";
+import TrackingIdBanner from "@/components/icpc/TrackingIdBanner";
 
 type ComplaintCategory = Database["public"]["Enums"]["complaint_category"];
 
@@ -44,6 +45,7 @@ const ComplainantForm = () => {
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [submittedTrackingId, setSubmittedTrackingId] = useState<string | null>(null);
   const captcha = useCaptcha();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,7 +75,6 @@ const ComplainantForm = () => {
     if (error) {
       toast({ title: "Submission Error", description: error.message, variant: "destructive" });
     } else {
-      // Send notification (fire-and-forget)
       sendNotification({
         type: "new_submission",
         complaint_id: "",
@@ -82,10 +83,7 @@ const ComplainantForm = () => {
         description: description.trim().substring(0, 200),
         submitter_email: anonymous ? undefined : contact || undefined,
       });
-      toast({
-        title: "Complaint Submitted",
-        description: `Your tracking reference ID is: ${trackingId}. Please save this for future reference.`,
-      });
+      setSubmittedTrackingId(trackingId);
       setCategory("");
       setDescription("");
       setName("");
@@ -95,6 +93,10 @@ const ComplainantForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {submittedTrackingId && (
+        <TrackingIdBanner trackingId={submittedTrackingId} />
+      )}
+
       <div className="flex items-center gap-3 p-3 rounded-md bg-icpc-green-light">
         <Shield className="h-5 w-5 text-primary shrink-0" />
         <div className="flex items-center gap-2">
@@ -166,6 +168,7 @@ const RespondentForm = () => {
   const [response, setResponse] = useState("");
   const [declared, setDeclared] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submittedTrackingId, setSubmittedTrackingId] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -203,7 +206,7 @@ const RespondentForm = () => {
         category: "misconduct",
         description: response.trim().substring(0, 200),
       });
-      toast({ title: "Response Submitted", description: "Your response has been recorded successfully." });
+      setSubmittedTrackingId(trackingId);
       setRefId("");
       setName("");
       setResponse("");
@@ -213,6 +216,9 @@ const RespondentForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {submittedTrackingId && (
+        <TrackingIdBanner trackingId={submittedTrackingId} />
+      )}
       <div className="space-y-2">
         <Label htmlFor="resp-ref" className="font-sans">Reference ID *</Label>
         <Input id="resp-ref" placeholder="e.g. ICPC-2026-ABC123" value={refId} onChange={(e) => setRefId(e.target.value)} maxLength={30} />
@@ -251,6 +257,7 @@ const PublicInterestForm = () => {
   const [topic, setTopic] = useState("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [submittedTrackingId, setSubmittedTrackingId] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -280,7 +287,7 @@ const PublicInterestForm = () => {
         category: topic,
         description: message.trim().substring(0, 200),
       });
-      toast({ title: "Feedback Received", description: "Thank you for your contribution to public accountability." });
+      setSubmittedTrackingId(trackingId);
       setTopic("");
       setMessage("");
     }
@@ -288,6 +295,9 @@ const PublicInterestForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {submittedTrackingId && (
+        <TrackingIdBanner trackingId={submittedTrackingId} />
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="pub-name" className="font-sans">Name (optional)</Label>

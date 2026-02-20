@@ -4,8 +4,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Shield, Upload } from "lucide-react";
+import { Shield, Upload, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import TrackingIdBanner from "@/components/icpc/TrackingIdBanner";
 
 const generateTrackingId = () => {
   const prefix = "ICPC-SR";
@@ -21,12 +23,14 @@ const IndividualForm = () => {
   const [description, setDescription] = useState("");
   const [caseRef, setCaseRef] = useState("");
   const [othersInvolved, setOthersInvolved] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submittedTrackingId, setSubmittedTrackingId] = useState<string | null>(null);
 
   const [captchaA] = useState(() => Math.floor(Math.random() * 10) + 1);
   const [captchaB] = useState(() => Math.floor(Math.random() * 10) + 1);
   const [captchaAnswer, setCaptchaAnswer] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!description.trim()) {
       toast({ title: "Validation Error", description: "Please describe your involvement.", variant: "destructive" });
@@ -36,15 +40,37 @@ const IndividualForm = () => {
       toast({ title: "CAPTCHA Failed", description: "Please solve the arithmetic question correctly.", variant: "destructive" });
       return;
     }
+
+    setSubmitting(true);
     const trackingId = generateTrackingId();
-    toast({
-      title: "Disclosure Submitted",
-      description: `Your tracking reference ID is: ${trackingId}. Please save this for future reference.`,
+    const fullDescription = `${description.trim()}${othersInvolved ? `\n\nOthers Involved: ${othersInvolved}` : ""}${caseRef ? `\nRelated Case Ref: ${caseRef}` : ""}`;
+    const { error } = await supabase.from("complaints").insert({
+      tracking_id: trackingId,
+      anonymous,
+      submitter_name: anonymous ? null : fullName || null,
+      submitter_contact: anonymous ? null : contact || null,
+      category: "self_report_individual",
+      description: fullDescription.trim(),
+      submission_type: "self_report",
+      reference_id: caseRef || null,
     });
+    setSubmitting(false);
+
+    if (error) {
+      toast({ title: "Submission Error", description: error.message, variant: "destructive" });
+    } else {
+      setSubmittedTrackingId(trackingId);
+      setFullName(""); setContact(""); setDescription("");
+      setCaseRef(""); setOthersInvolved(""); setCaptchaAnswer("");
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {submittedTrackingId && (
+        <TrackingIdBanner trackingId={submittedTrackingId} />
+      )}
+
       <div className="flex items-center gap-3 p-3 rounded-md bg-icpc-green-light">
         <Shield className="h-5 w-5 text-primary shrink-0" />
         <div className="flex items-center gap-2">
@@ -101,7 +127,10 @@ const IndividualForm = () => {
         </div>
       </div>
 
-      <Button type="submit" className="w-full md:w-auto font-sans">Submit Disclosure</Button>
+      <Button type="submit" className="w-full md:w-auto font-sans gap-2" disabled={submitting}>
+        {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
+        {submitting ? "Submitting..." : "Submit Disclosure"}
+      </Button>
     </form>
   );
 };
