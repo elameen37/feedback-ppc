@@ -44,9 +44,11 @@ const IndividualForm = () => {
     setSubmitting(true);
     const trackingId = generateTrackingId();
     const fullDescription = `${description.trim()}${othersInvolved ? `\n\nOthers Involved: ${othersInvolved}` : ""}${caseRef ? `\nRelated Case Ref: ${caseRef}` : ""}`;
+    const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase.from("complaints").insert({
       tracking_id: trackingId,
       anonymous,
+      submitter_id: user?.id ?? null,
       submitter_name: anonymous ? null : fullName || null,
       submitter_contact: anonymous ? null : contact || null,
       category: "self_report_individual",

@@ -50,9 +50,11 @@ const PublicOfficerForm = () => {
     setSubmitting(true);
     const trackingId = generateTrackingId();
     const fullDescription = `Nature: ${nature}\nPosition: ${position}\nMDA: ${mda}${dates ? `\nDate(s): ${dates}` : ""}${amount ? `\nAmount: ${amount}` : ""}\n\n${description}`;
+    const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase.from("complaints").insert({
       tracking_id: trackingId,
-      anonymous: false,
+      anonymous: user ? false : true,
+      submitter_id: user?.id ?? null,
       submitter_name: fullName.trim(),
       category: "self_report_officer",
       description: fullDescription.trim(),

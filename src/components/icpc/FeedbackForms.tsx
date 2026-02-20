@@ -61,9 +61,11 @@ const ComplainantForm = () => {
 
     setSubmitting(true);
     const trackingId = generateTrackingId();
+    const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase.from("complaints").insert({
       tracking_id: trackingId,
       anonymous,
+      submitter_id: user?.id ?? null,
       submitter_name: anonymous ? null : name || null,
       submitter_contact: anonymous ? null : contact || null,
       category: category as ComplaintCategory,
@@ -185,7 +187,7 @@ const RespondentForm = () => {
     const trackingId = generateTrackingId();
     const { error } = await supabase.from("complaints").insert({
       tracking_id: trackingId,
-      anonymous: false,
+      anonymous: true,
       submitter_name: name.trim(),
       category: "misconduct" as ComplaintCategory,
       description: response.trim(),
@@ -268,9 +270,11 @@ const PublicInterestForm = () => {
 
     setSubmitting(true);
     const trackingId = generateTrackingId();
+    const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase.from("complaints").insert({
       tracking_id: trackingId,
       anonymous: true,
+      submitter_id: user?.id ?? null,
       category: topic as ComplaintCategory,
       description: message.trim(),
       submission_type: "public_interest",
