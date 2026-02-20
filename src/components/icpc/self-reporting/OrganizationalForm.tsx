@@ -48,9 +48,11 @@ const OrganizationalForm = () => {
     setSubmitting(true);
     const trackingId = generateTrackingId();
     const fullDescription = `Organization: ${orgName}${rcNumber ? ` (RC: ${rcNumber})` : ""}\nCompliance Officer: ${complianceOfficer}\n\n${description}${correctiveSteps ? `\n\nCorrective Steps Taken:\n${correctiveSteps}` : ""}`;
+    const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase.from("complaints").insert({
       tracking_id: trackingId,
-      anonymous: false,
+      anonymous: user ? false : true,
+      submitter_id: user?.id ?? null,
       submitter_name: complianceOfficer.trim(),
       category: "self_report_organization",
       description: fullDescription.trim(),

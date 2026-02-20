@@ -84,7 +84,7 @@ const TrackDisclosureDialog = ({ open, onOpenChange }: TrackDisclosureDialogProp
               placeholder="e.g. ICPC-SR-2026-XYZ789"
               value={refId}
               onChange={(e) => { setRefId(e.target.value); setComplaint(null); setNotFound(false); }}
-              maxLength={30}
+              maxLength={40}
             />
           </div>
           <Button type="submit" className="font-sans gap-2" disabled={loading}>
