@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 const MAILTRAP_API_URL = "https://send.api.mailtrap.io/api/send";
-const SENDER_EMAIL = "noreply@icpc.gov.ng";
+const SENDER_EMAIL = "hello@demomailtrap.com";
 const SENDER_NAME = "ICPC Complaint Portal";
 
 interface NotificationPayload {
