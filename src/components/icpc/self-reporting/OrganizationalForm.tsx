@@ -51,7 +51,7 @@ const OrganizationalForm = () => {
     const { data: { user } } = await supabase.auth.getUser();
     const { error } = await supabase.from("complaints").insert({
       tracking_id: trackingId,
-      anonymous: user ? false : true,
+      anonymous: !user,
       submitter_id: user?.id ?? null,
       submitter_name: complianceOfficer.trim(),
       category: "self_report_organization",
