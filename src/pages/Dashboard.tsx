@@ -300,6 +300,9 @@ const Dashboard = () => {
                 {!selectedComplaint.anonymous && selectedComplaint.submitter_name && (
                   <div><span className="text-muted-foreground">Name:</span> {selectedComplaint.submitter_name}</div>
                 )}
+                {!selectedComplaint.anonymous && selectedComplaint.submitter_contact && (
+                  <div><span className="text-muted-foreground">Contact:</span> {selectedComplaint.submitter_contact}</div>
+                )}
                 <div><span className="text-muted-foreground">Date:</span> {new Date(selectedComplaint.created_at).toLocaleString()}</div>
               </div>
 
