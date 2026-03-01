@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,6 +11,19 @@ const navLinks = [
 
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      setVisible(currentY < lastScrollY.current || currentY < 10);
+      lastScrollY.current = currentY;
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   let auth: ReturnType<typeof useAuth> | null = null;
   try {
     auth = useAuth();
@@ -26,7 +39,7 @@ const Header = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-primary shadow-lg">
+    <header className={`sticky top-0 z-50 w-full bg-primary shadow-lg transition-transform duration-300 ${visible ? "translate-y-0" : "-translate-y-full"}`}>
       <div className="text-primary-foreground">
         <div className="container flex items-center justify-between py-2.5">
           <div className="flex items-center gap-3">
