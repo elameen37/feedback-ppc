@@ -45,12 +45,13 @@ const IndividualForm = () => {
     const trackingId = generateTrackingId();
     const fullDescription = `${description.trim()}${othersInvolved ? `\n\nOthers Involved: ${othersInvolved}` : ""}${caseRef ? `\nRelated Case Ref: ${caseRef}` : ""}`;
     const { data: { user } } = await supabase.auth.getUser();
+    const isAnon = anonymous || !user;
     const { error } = await supabase.from("complaints").insert({
       tracking_id: trackingId,
-      anonymous,
+      anonymous: isAnon,
       submitter_id: user?.id ?? null,
-      submitter_name: anonymous ? null : fullName || null,
-      submitter_contact: anonymous ? null : contact || null,
+      submitter_name: isAnon ? null : fullName || null,
+      submitter_contact: isAnon ? null : contact || null,
       category: "self_report_individual",
       description: fullDescription.trim(),
       submission_type: "self_report",
