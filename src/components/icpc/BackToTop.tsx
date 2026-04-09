@@ -17,12 +17,12 @@ const BackToTop = () => {
     <Button
       onClick={scrollToTop}
       size="icon"
-      className={`fixed bottom-6 right-6 z-50 rounded-full shadow-lg bg-accent text-accent-foreground hover:bg-accent/90 transition-all duration-300 ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
+      className={`fixed bottom-8 right-8 z-50 rounded-xl shadow-2xl bg-primary text-primary-foreground hover:scale-110 neon-glow transition-all duration-300 ${
+        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
       }`}
       aria-label="Back to top"
     >
-      <ArrowUp className="h-5 w-5" />
+      <ArrowUp className="h-6 w-6" />
     </Button>
   );
 };

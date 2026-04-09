@@ -9,8 +9,8 @@ const steps = [
 
 const HowItWorks = () => {
   return (
-    <section className="py-10 sm:py-16 bg-background" aria-labelledby="how-title">
-      <div className="container px-4 sm:px-6 max-w-4xl">
+    <section className="py-10 sm:py-16 bg-background relative" aria-labelledby="how-title">
+      <div className="container px-4 sm:px-6 max-w-4xl relative z-10">
         <div className="text-center mb-12">
           <h2 id="how-title" className="text-2xl md:text-3xl font-bold text-primary mb-3">
             How It Works
@@ -22,14 +22,14 @@ const HowItWorks = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {steps.map((step, i) => (
-            <div key={step.title} className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-4 relative">
+            <div key={step.title} className="text-center group">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/5 text-primary mb-4 relative group-hover:neon-glow transition-all duration-300">
                 <step.icon className="h-7 w-7" />
-                <span className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-secondary text-secondary-foreground text-xs font-bold flex items-center justify-center font-sans">
+                <span className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center font-sans">
                   {i + 1}
                 </span>
               </div>
-              <h3 className="text-lg font-bold text-primary mb-2">{step.title}</h3>
+              <h3 className="text-lg font-bold text-primary mb-2 group-hover:text-white transition-colors">{step.title}</h3>
               <p className="text-sm text-muted-foreground font-sans">{step.description}</p>
             </div>
           ))}

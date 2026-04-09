@@ -43,13 +43,16 @@ const principles = [
 
 const AboutSection = () => {
   return (
-    <section className="bg-icpc-green-light py-10 sm:py-16 md:py-24" aria-labelledby="about-title">
-      <div className="container px-4 sm:px-6">
+    <section className="bg-background py-10 sm:py-16 md:py-24 relative overflow-hidden" aria-labelledby="about-title">
+      {/* Decorative background glow */}
+      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.05),transparent_70%)] pointer-events-none" />
+      
+      <div className="container px-4 sm:px-6 relative z-10">
         {/* Hero intro */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h1
             id="about-title"
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4 leading-tight"
+            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4 leading-tight animate-neon-glow"
           >
             About the ICPC Feedback & Complaint Tracking Portal
           </h1>
@@ -75,9 +78,9 @@ const AboutSection = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             {portalFeatures.map((feature) => (
               <Link key={feature.title} to={feature.href} className="group">
-                <Card className="h-full border-2 border-transparent hover:border-accent transition-colors group-focus-visible:ring-2 group-focus-visible:ring-ring">
+                <Card className="h-full glass-panel border-white/5 hover:border-primary/50 transition-all duration-300 group-hover:neon-glow group-focus-visible:ring-2 group-focus-visible:ring-ring">
                   <CardContent className="pt-6 text-center">
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-accent/10 text-accent mb-4">
+                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 text-primary mb-4 group-hover:scale-110 transition-transform">
                       <feature.icon className="h-7 w-7" />
                     </div>
                     <h3 className="text-lg font-bold text-primary mb-2">{feature.title}</h3>
@@ -96,8 +99,8 @@ const AboutSection = () => {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {principles.map((item) => (
-              <div key={item.title} className="text-center">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 text-primary mb-4">
+              <div key={item.title} className="text-center group">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/5 text-primary mb-4 group-hover:neon-glow transition-all">
                   <item.icon className="h-7 w-7" />
                 </div>
                 <h3 className="text-lg font-bold text-primary mb-2">{item.title}</h3>

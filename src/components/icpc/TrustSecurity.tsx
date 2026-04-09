@@ -26,8 +26,9 @@ const items = [
 
 const TrustSecurity = () => {
   return (
-    <section className="py-10 sm:py-16 bg-icpc-gold-light" aria-labelledby="trust-title">
-      <div className="container px-4 sm:px-6 max-w-4xl">
+    <section className="py-10 sm:py-16 bg-muted/30 border-y border-white/5 relative overflow-hidden" aria-labelledby="trust-title">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_0%_0%,rgba(255,255,255,0.03),transparent_50%)] pointer-events-none" />
+      <div className="container px-4 sm:px-6 max-w-4xl relative z-10">
         <div className="text-center mb-12">
           <h2 id="trust-title" className="text-2xl md:text-3xl font-bold text-primary mb-3">
             Trust & Security
@@ -39,9 +40,9 @@ const TrustSecurity = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {items.map((item) => (
-            <Card key={item.title} className="border-l-4 border-l-accent">
+            <Card key={item.title} className="glass-panel border-white/5 hover:border-primary/40 transition-all duration-300 group">
               <CardContent className="pt-6 flex gap-4">
-                <div className="shrink-0 w-10 h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center">
+                <div className="shrink-0 w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:neon-glow transition-all">
                   <item.icon className="h-5 w-5" />
                 </div>
                 <div>
