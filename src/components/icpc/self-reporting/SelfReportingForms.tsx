@@ -7,57 +7,56 @@ import OrganizationalForm from "./OrganizationalForm";
 
 const SelfReportingForms = () => {
   return (
-    <section id="self-report" className="py-10 sm:py-20 bg-background relative overflow-hidden" aria-labelledby="self-report-title">
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.05),transparent_60%)] pointer-events-none" />
-      <div className="container px-4 sm:px-6 max-w-4xl relative z-10">
-        <div className="text-center mb-12">
-          <h2 id="self-report-title" className="text-2xl md:text-3xl font-bold text-primary mb-3 uppercase tracking-widest animate-neon-glow">
-            Self-Reporting & Voluntary Disclosure
+    <section id="self-report" className="py-10 sm:py-16 bg-background" aria-labelledby="self-report-title">
+      <div className="container px-4 sm:px-6 max-w-4xl">
+        <div className="text-center mb-10">
+          <h2 id="self-report-title" className="text-2xl md:text-3xl font-bold text-primary mb-3">
+            Self-Reporting & Voluntary Disclosure Form
           </h2>
-          <p className="text-muted-foreground font-sans max-w-2xl mx-auto leading-relaxed">
-            Select the appropriate disclosure category below and complete the form. All information is secured using government-grade encryption.
+          <p className="text-muted-foreground font-sans">
+            Select the appropriate disclosure category below and complete the form. All fields marked with * are required.
           </p>
         </div>
 
-        <Card className="glass-panel border-white/5 shadow-2x overflow-hidden">
+        <Card>
           <CardContent className="pt-6">
             <Tabs defaultValue="public-officer" className="w-full">
-              <TabsList className="w-full grid grid-cols-3 mb-8 h-auto bg-black/40 border border-white/5 p-1 rounded-xl">
-                <TabsTrigger value="public-officer" className="font-sans text-[10px] sm:text-xs md:text-sm py-3 px-1 sm:px-3 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:neon-glow transition-all">
+              <TabsList className="w-full grid grid-cols-3 mb-6 h-auto">
+                <TabsTrigger value="public-officer" className="font-sans text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-3">
                   Public Officer
                 </TabsTrigger>
-                <TabsTrigger value="individual" className="font-sans text-[10px] sm:text-xs md:text-sm py-3 px-1 sm:px-3 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:neon-glow transition-all">
+                <TabsTrigger value="individual" className="font-sans text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-3">
                   Individual
                 </TabsTrigger>
-                <TabsTrigger value="organizational" className="font-sans text-[10px] sm:text-xs md:text-sm py-3 px-1 sm:px-3 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:neon-glow transition-all">
+                <TabsTrigger value="organizational" className="font-sans text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-3">
                   Organizational
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="public-officer" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <TabsContent value="public-officer">
                 <CardHeader className="px-0 pt-0">
-                  <CardTitle className="text-xl text-primary">Public Officer Disclosure</CardTitle>
-                  <CardDescription className="font-sans text-muted-foreground/80">
+                  <CardTitle className="text-lg text-primary">Public Officer Disclosure</CardTitle>
+                  <CardDescription className="font-sans">
                     Voluntarily disclose misconduct as a public officer seeking corrective compliance.
                   </CardDescription>
                 </CardHeader>
                 <PublicOfficerForm />
               </TabsContent>
 
-              <TabsContent value="individual" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <TabsContent value="individual">
                 <CardHeader className="px-0 pt-0">
-                  <CardTitle className="text-xl text-primary">Individual Voluntary Disclosure</CardTitle>
-                  <CardDescription className="font-sans text-muted-foreground/80">
+                  <CardTitle className="text-lg text-primary">Individual Voluntary Disclosure</CardTitle>
+                  <CardDescription className="font-sans">
                     Disclose your involvement in corruption-related matters. You may submit anonymously.
                   </CardDescription>
                 </CardHeader>
                 <IndividualForm />
               </TabsContent>
 
-              <TabsContent value="organizational" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <TabsContent value="organizational">
                 <CardHeader className="px-0 pt-0">
-                  <CardTitle className="text-xl text-primary">Organizational Disclosure</CardTitle>
-                  <CardDescription className="font-sans text-muted-foreground/80">
+                  <CardTitle className="text-lg text-primary">Organizational Disclosure</CardTitle>
+                  <CardDescription className="font-sans">
                     Report internal irregularities identified within your organization.
                   </CardDescription>
                 </CardHeader>

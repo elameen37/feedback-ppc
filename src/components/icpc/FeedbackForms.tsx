@@ -100,11 +100,11 @@ const ComplainantForm = () => {
         <TrackingIdBanner trackingId={submittedTrackingId} />
       )}
 
-      <div className="flex items-center gap-3 p-4 rounded-xl glass-panel border-white/10">
-        <Shield className="h-5 w-5 text-primary shrink-0 animate-pulse" />
-        <div className="flex items-center gap-3">
-          <Switch id="anonymous" checked={anonymous} onCheckedChange={setAnonymous} aria-label="Submit anonymously" className="data-[state=checked]:bg-primary" />
-          <Label htmlFor="anonymous" className="text-sm font-sans cursor-pointer text-foreground/80">
+      <div className="flex items-center gap-3 p-3 rounded-md bg-icpc-green-light">
+        <Shield className="h-5 w-5 text-primary shrink-0" />
+        <div className="flex items-center gap-2">
+          <Switch id="anonymous" checked={anonymous} onCheckedChange={setAnonymous} aria-label="Submit anonymously" />
+          <Label htmlFor="anonymous" className="text-sm font-sans cursor-pointer">
             Submit anonymously (your identity will be protected)
           </Label>
         </div>
@@ -339,50 +339,46 @@ const PublicInterestForm = () => {
 
 const FeedbackForms = () => {
   return (
-    <section id="submit" className="py-10 sm:py-16 bg-background relative overflow-hidden" aria-labelledby="submit-title">
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.05),transparent_50%)] pointer-events-none" />
-      <div className="container px-4 sm:px-6 max-w-4xl relative z-10">
+    <section id="submit" className="py-10 sm:py-16 bg-background" aria-labelledby="submit-title">
+      <div className="container px-4 sm:px-6 max-w-4xl">
         <div className="text-center mb-10">
-          <h2 id="submit-title" className="text-2xl md:text-3xl font-bold text-primary mb-3 uppercase tracking-widest animate-neon-glow">
+          <h2 id="submit-title" className="text-2xl md:text-3xl font-bold text-primary mb-3">
             Submit Your Feedback
           </h2>
-          <p className="text-muted-foreground font-sans max-w-2xl mx-auto">
-            Select the appropriate category below and complete the form. All submissions are processed through our secure, encrypted infrastructure.
+          <p className="text-muted-foreground font-sans">
+            Select the appropriate category below and complete the form. All fields marked with * are required.
           </p>
         </div>
-        <Card className="glass-panel border-white/5 shadow-2xl overflow-hidden">
+        <Card>
           <CardContent className="pt-6">
             <Tabs defaultValue="complainant" className="w-full">
-              <TabsList className="w-full grid grid-cols-3 mb-8 h-auto bg-black/40 border border-white/5 p-1 rounded-xl">
-                <TabsTrigger value="complainant" className="font-sans text-[10px] sm:text-xs md:text-sm py-3 px-1 sm:px-3 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:neon-glow transition-all">Complainants</TabsTrigger>
-                <TabsTrigger value="respondent" className="font-sans text-[10px] sm:text-xs md:text-sm py-3 px-1 sm:px-3 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:neon-glow transition-all">Respondents</TabsTrigger>
-                <TabsTrigger value="public" className="font-sans text-[10px] sm:text-xs md:text-sm py-3 px-1 sm:px-3 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:neon-glow transition-all">Public Interest</TabsTrigger>
+              <TabsList className="w-full grid grid-cols-3 mb-6 h-auto">
+                <TabsTrigger value="complainant" className="font-sans text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-3">Complainants</TabsTrigger>
+                <TabsTrigger value="respondent" className="font-sans text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-3">Respondents</TabsTrigger>
+                <TabsTrigger value="public" className="font-sans text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-3">Public Interest</TabsTrigger>
               </TabsList>
-              <TabsContent value="complainant" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <TabsContent value="complainant">
                 <CardHeader className="px-0 pt-0">
-                  <CardTitle className="text-xl text-primary flex items-center gap-2">
-                    <Shield className="h-5 w-5" />
-                    Report Corruption or Misconduct
-                  </CardTitle>
-                  <CardDescription className="font-sans text-muted-foreground/80">
+                  <CardTitle className="text-lg text-primary">Report Corruption or Misconduct</CardTitle>
+                  <CardDescription className="font-sans">
                     Use this form to report corruption, abuse of office, or misconduct by public officials. You may submit anonymously.
                   </CardDescription>
                 </CardHeader>
                 <ComplainantForm />
               </TabsContent>
-              <TabsContent value="respondent" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <TabsContent value="respondent">
                 <CardHeader className="px-0 pt-0">
-                  <CardTitle className="text-xl text-primary">Respond to a Query or Investigation</CardTitle>
-                  <CardDescription className="font-sans text-muted-foreground/80">
+                  <CardTitle className="text-lg text-primary">Respond to a Query or Investigation</CardTitle>
+                  <CardDescription className="font-sans">
                     Provide your official response to an existing complaint or investigation query.
                   </CardDescription>
                 </CardHeader>
                 <RespondentForm />
               </TabsContent>
-              <TabsContent value="public" className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+              <TabsContent value="public">
                 <CardHeader className="px-0 pt-0">
-                  <CardTitle className="text-xl text-primary">Share Public Interest Feedback</CardTitle>
-                  <CardDescription className="font-sans text-muted-foreground/80">
+                  <CardTitle className="text-lg text-primary">Share Public Interest Feedback</CardTitle>
+                  <CardDescription className="font-sans">
                     Contribute suggestions, concerns, or observations for public accountability.
                   </CardDescription>
                 </CardHeader>

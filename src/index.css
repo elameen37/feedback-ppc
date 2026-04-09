@@ -1,70 +1,84 @@
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Source+Sans+3:wght@300;400;500;600;700&display=swap');
+
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
+    --background: 0 0% 100%;
+    --foreground: 240 20% 15%;
 
-    --card: 240 10% 4%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 20% 15%;
 
-    --popover: 240 10% 4%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 20% 15%;
 
-    --primary: 240 10% 80%;
-    --primary-foreground: 0 0% 0%;
+    --primary: 240 20% 24%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 10% 20%;
+    --secondary: 240 15% 40%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 240 10% 12%;
-    --muted-foreground: 240 10% 65%;
+    --muted: 240 10% 95%;
+    --muted-foreground: 240 10% 40%;
 
-    --accent: 240 10% 90%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 195 90% 50%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 10% 15%;
-    --input: 240 10% 15%;
-    --ring: 240 10% 80%;
+    --border: 240 10% 85%;
+    --input: 240 10% 85%;
+    --ring: 240 20% 24%;
 
-    --radius: 0.5rem;
+    --radius: 0.375rem;
 
-    --sidebar-background: 0 0% 2%;
-    --sidebar-foreground: 240 10% 90%;
-    --sidebar-primary: 240 10% 80%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 240 10% 10%;
-    --sidebar-accent-foreground: 240 10% 95%;
-    --sidebar-border: 240 10% 10%;
-    --sidebar-ring: 240 10% 80%;
+    --sidebar-background: 240 20% 24%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 240 15% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 20% 18%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 240 15% 35%;
+    --sidebar-ring: 240 15% 40%;
+
+    --icpc-green-light: 240 15% 95%;
+    --icpc-gold-light: 240 10% 93%;
   }
 
   .dark {
-    /* Same as root for monochrome neon experience */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 4%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 4%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 240 10% 80%;
-    --primary-foreground: 0 0% 0%;
-    --secondary: 240 10% 20%;
+    --background: 240 15% 10%;
+    --foreground: 0 0% 95%;
+    --card: 240 15% 12%;
+    --card-foreground: 0 0% 95%;
+    --popover: 240 15% 12%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 240 20% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 15% 50%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 240 10% 12%;
-    --muted-foreground: 240 10% 65%;
-    --accent: 240 10% 90%;
-    --accent-foreground: 0 0% 0%;
-    --border: 240 10% 15%;
-    --input: 240 10% 15%;
-    --ring: 240 10% 80%;
+    --muted: 240 15% 18%;
+    --muted-foreground: 240 10% 60%;
+    --accent: 195 85% 45%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 15% 22%;
+    --input: 240 15% 22%;
+    --ring: 240 20% 40%;
+    --sidebar-background: 240 15% 8%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 240 15% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 15% 15%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 240 15% 22%;
+    --sidebar-ring: 240 15% 50%;
+    --icpc-green-light: 240 15% 15%;
+    --icpc-gold-light: 240 10% 15%;
   }
 }
 
@@ -75,24 +89,11 @@
 
   body {
     @apply bg-background text-foreground font-sans;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Source Sans 3', system-ui, sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', sans-serif;
-    font-weight: 700;
-  }
-}
-
-@layer components {
-  .neon-glow {
-    box-shadow: 0 0 15px hsla(240, 10%, 80%, 0.3);
-  }
-  
-  .glass-panel {
-    background: hsla(240, 10%, 4%, 0.6);
-    backdrop-filter: blur(12px);
-    border: 1px solid hsla(240, 10%, 80%, 0.1);
+    font-family: 'Merriweather', Georgia, serif;
   }
 }
 

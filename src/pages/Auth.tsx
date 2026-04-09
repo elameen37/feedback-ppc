@@ -53,65 +53,62 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
-      {/* Dynamic background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 bg-primary/5 blur-[120px] pointer-events-none" />
-      
+    <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-1 flex items-center justify-center py-12 px-4 relative z-10">
-        <Card className="w-full max-w-md glass-panel border-white/5 shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-500">
-          <CardHeader className="text-center pb-2">
-            <div className="mx-auto mb-4 h-16 w-16 rounded-2xl bg-white/5 flex items-center justify-center neon-glow group transition-all duration-500">
-              <Shield className="h-8 w-8 text-primary shadow-[0_0_15px_rgba(255,255,255,0.5)]" />
+      <main className="flex-1 flex items-center justify-center py-12 px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-3 h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <Shield className="h-6 w-6 text-primary" />
             </div>
-            <CardTitle className="text-2xl text-primary font-bold uppercase tracking-widest animate-neon-glow">Officer Portal</CardTitle>
-            <CardDescription className="font-sans text-muted-foreground/70">
-              Secure authentication for authorised ICPC personnel.
+            <CardTitle className="text-xl text-primary">Officer / Admin Portal</CardTitle>
+            <CardDescription className="font-sans">
+              Sign in to access the ICPC complaint management dashboard.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="w-full grid grid-cols-2 mb-8 bg-black/40 border border-white/5 p-1 rounded-xl">
-                <TabsTrigger value="login" className="font-sans py-2.5 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:neon-glow transition-all">Sign In</TabsTrigger>
+            <Tabs defaultValue="login">
+              <TabsList className="w-full grid grid-cols-2 mb-4">
+                <TabsTrigger value="login" className="font-sans">Sign In</TabsTrigger>
+                <TabsTrigger value="signup" className="font-sans">Sign Up</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="login" className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <form onSubmit={handleLogin} className="space-y-6">
+              <TabsContent value="login">
+                <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="login-email" className="font-sans text-xs uppercase tracking-widest text-muted-foreground">Officer Email</Label>
-                    <Input id="login-email" type="email" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} placeholder="officer@icpc.gov.ng" className="bg-white/5 border-white/10 focus:border-primary/50 transition-all font-sans" />
+                    <Label htmlFor="login-email" className="font-sans">Email</Label>
+                    <Input id="login-email" type="email" required value={loginEmail} onChange={(e) => setLoginEmail(e.target.value)} placeholder="officer@icpc.gov.ng" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="login-password" className="font-sans text-xs uppercase tracking-widest text-muted-foreground">Safe Access Key</Label>
-                    <Input id="login-password" type="password" required value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder="••••••••" className="bg-white/5 border-white/10 focus:border-primary/50 transition-all font-sans" />
+                    <Label htmlFor="login-password" className="font-sans">Password</Label>
+                    <Input id="login-password" type="password" required value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} placeholder="••••••••" />
                   </div>
-                  <Button type="submit" className="w-full font-bold font-sans gap-2 h-12 rounded-xl group" disabled={loading}>
-                    {loading ? <LogIn className="h-5 w-5 animate-spin" /> : <LogIn className="h-5 w-5 group-hover:scale-110 transition-transform" />} 
-                    {loading ? "Authenticating..." : "Authorise & Enter"}
+                  <Button type="submit" className="w-full font-sans gap-2" disabled={loading}>
+                    <LogIn className="h-4 w-4" /> {loading ? "Signing in..." : "Sign In"}
                   </Button>
                 </form>
               </TabsContent>
 
-              <TabsContent value="signup" className="animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <form onSubmit={handleSignup} className="space-y-5">
+              <TabsContent value="signup">
+                <form onSubmit={handleSignup} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name" className="font-sans text-xs uppercase tracking-widest text-muted-foreground">Full Name</Label>
-                    <Input id="signup-name" required value={signupName} onChange={(e) => setSignupName(e.target.value)} placeholder="Enter full name" maxLength={100} className="bg-white/5 border-white/10 focus:border-primary/50 transition-all font-sans" />
+                    <Label htmlFor="signup-name" className="font-sans">Full Name</Label>
+                    <Input id="signup-name" required value={signupName} onChange={(e) => setSignupName(e.target.value)} placeholder="Full name" maxLength={100} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email" className="font-sans text-xs uppercase tracking-widest text-muted-foreground">Official Email</Label>
-                    <Input id="signup-email" type="email" required value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} placeholder="officer@icpc.gov.ng" className="bg-white/5 border-white/10 focus:border-primary/50 transition-all font-sans" />
+                    <Label htmlFor="signup-email" className="font-sans">Email</Label>
+                    <Input id="signup-email" type="email" required value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} placeholder="officer@icpc.gov.ng" />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password" className="font-sans text-xs uppercase tracking-widest text-muted-foreground">Security Password</Label>
-                    <Input id="signup-password" type="password" required value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} placeholder="Min 6 characters" className="bg-white/5 border-white/10 focus:border-primary/50 transition-all font-sans" />
+                    <Label htmlFor="signup-password" className="font-sans">Password</Label>
+                    <Input id="signup-password" type="password" required value={signupPassword} onChange={(e) => setSignupPassword(e.target.value)} placeholder="Min 6 characters" />
                   </div>
-                  <Button type="submit" variant="secondary" className="w-full font-bold font-sans h-12 rounded-xl" disabled={loading}>
-                    {loading ? "Requesting..." : "Send Access Request"}
+                  <Button type="submit" className="w-full font-sans" disabled={loading}>
+                    {loading ? "Creating account..." : "Create Account"}
                   </Button>
                 </form>
-                <p className="text-[10px] text-muted-foreground mt-4 font-sans text-center uppercase tracking-widest leading-relaxed">
-                  Notice: All registration attempts are logged. <br />Admin approval required for dashboard access.
+                <p className="text-xs text-muted-foreground mt-3 font-sans text-center">
+                  Note: New accounts require admin approval for role assignment.
                 </p>
               </TabsContent>
             </Tabs>
