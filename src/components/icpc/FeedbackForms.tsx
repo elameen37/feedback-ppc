@@ -100,33 +100,35 @@ const ComplainantForm = () => {
         <TrackingIdBanner trackingId={submittedTrackingId} />
       )}
 
-      <div className="flex items-center gap-3 p-3 rounded-md bg-icpc-green-light">
-        <Shield className="h-5 w-5 text-primary shrink-0" />
+      <div className="flex items-center gap-3 p-4 rounded-xl glass-card bg-accent/5 border-accent/20 animate-reveal stagger-1">
+        <Shield className="h-6 w-6 text-accent shrink-0" />
         <div className="flex items-center gap-2">
           <Switch id="anonymous" checked={anonymous} onCheckedChange={setAnonymous} aria-label="Submit anonymously" />
-          <Label htmlFor="anonymous" className="text-sm font-sans cursor-pointer">
+          <Label htmlFor="anonymous" className="text-sm font-sans cursor-pointer font-medium">
             Submit anonymously (your identity will be protected)
           </Label>
         </div>
       </div>
 
       {!anonymous && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-reveal stagger-2">
           <div className="space-y-2">
-            <Label htmlFor="comp-name" className="font-sans">Full Name</Label>
-            <Input id="comp-name" placeholder="Enter your full name" value={name} onChange={(e) => setName(e.target.value)} maxLength={100} />
+            <Label htmlFor="comp-name" className="font-sans font-medium">Full Name</Label>
+            <Input id="comp-name" placeholder="Enter your full name" className="glass-card bg-background/50" value={name} onChange={(e) => setName(e.target.value)} maxLength={100} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="comp-contact" className="font-sans">Email or Phone</Label>
-            <Input id="comp-contact" placeholder="email@example.com or 080..." value={contact} onChange={(e) => setContact(e.target.value)} maxLength={150} />
+            <Label htmlFor="comp-contact" className="font-sans font-medium">Email or Phone</Label>
+            <Input id="comp-contact" placeholder="email@example.com or 080..." className="glass-card bg-background/50" value={contact} onChange={(e) => setContact(e.target.value)} maxLength={150} />
           </div>
         </div>
       )}
 
-      <div className="space-y-2">
-        <Label htmlFor="comp-category" className="font-sans">Complaint Category *</Label>
+      <div className="space-y-2 animate-reveal stagger-3">
+        <Label htmlFor="comp-category" className="font-sans font-medium">Complaint Category *</Label>
         <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger id="comp-category"><SelectValue placeholder="Select a category" /></SelectTrigger>
+          <SelectTrigger id="comp-category" className="glass-card bg-background/50">
+            <SelectValue placeholder="Select a category" />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="corruption">Corruption</SelectItem>
             <SelectItem value="abuse_of_office">Abuse of Office</SelectItem>
@@ -135,9 +137,9 @@ const ComplainantForm = () => {
         </Select>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="comp-desc" className="font-sans">Description *</Label>
-        <Textarea id="comp-desc" placeholder="Provide a detailed description of the complaint..." rows={5} value={description} onChange={(e) => setDescription(e.target.value)} maxLength={5000} />
+      <div className="space-y-2 animate-reveal stagger-4">
+        <Label htmlFor="comp-desc" className="font-sans font-medium">Description *</Label>
+        <Textarea id="comp-desc" className="glass-card bg-background/50 resize-none min-h-[150px]" placeholder="Provide a detailed description of the complaint..." value={description} onChange={(e) => setDescription(e.target.value)} maxLength={5000} />
       </div>
 
       <div className="space-y-2">
@@ -349,13 +351,13 @@ const FeedbackForms = () => {
             Select the appropriate category below and complete the form. All fields marked with * are required.
           </p>
         </div>
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="glass-card border-white/5 animate-reveal stagger-1">
+          <CardContent className="pt-8">
             <Tabs defaultValue="complainant" className="w-full">
-              <TabsList className="w-full grid grid-cols-3 mb-6 h-auto">
-                <TabsTrigger value="complainant" className="font-sans text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-3">Complainants</TabsTrigger>
-                <TabsTrigger value="respondent" className="font-sans text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-3">Respondents</TabsTrigger>
-                <TabsTrigger value="public" className="font-sans text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-3">Public Interest</TabsTrigger>
+              <TabsList className="w-full grid grid-cols-3 mb-8 h-auto p-1.5 bg-muted/50 rounded-xl">
+                <TabsTrigger value="complainant" className="font-sans text-[10px] sm:text-xs md:text-sm py-3 px-1 sm:px-3 rounded-lg data-[state=active]:shadow-lg">Complainants</TabsTrigger>
+                <TabsTrigger value="respondent" className="font-sans text-[10px] sm:text-xs md:text-sm py-3 px-1 sm:px-3 rounded-lg data-[state=active]:shadow-lg">Respondents</TabsTrigger>
+                <TabsTrigger value="public" className="font-sans text-[10px] sm:text-xs md:text-sm py-3 px-1 sm:px-3 rounded-lg data-[state=active]:shadow-lg">Public Interest</TabsTrigger>
               </TabsList>
               <TabsContent value="complainant">
                 <CardHeader className="px-0 pt-0">

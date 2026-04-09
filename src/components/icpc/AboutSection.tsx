@@ -43,65 +43,87 @@ const principles = [
 
 const AboutSection = () => {
   return (
-    <section className="bg-icpc-green-light py-10 sm:py-16 md:py-24" aria-labelledby="about-title">
+    <section className="py-16 sm:py-24 bg-background overflow-hidden" aria-labelledby="about-title">
       <div className="container px-4 sm:px-6">
-        {/* Hero intro */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <h1
-            id="about-title"
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4 leading-tight"
-          >
-            About the ICPC Feedback & Complaint Tracking Portal
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground font-sans mb-6">
-            A secure, transparent digital platform empowering Nigerian citizens to report corruption,
-            track complaints, and contribute to national accountability.
-          </p>
-          <p className="text-sm text-muted-foreground font-sans leading-relaxed">
-            The Independent Corrupt Practices and Other Related Offences Commission (ICPC) is
-            constitutionally mandated under the Corrupt Practices and Other Related Offences Act, 2000
-            to receive, investigate, and prosecute cases of corruption in Nigeria. This portal serves as the
-            Commission's official digital channel for public engagement — enabling citizens, organisations,
-            and public officers to submit reports, provide responses, and make voluntary disclosures with
-            full confidence in the security and confidentiality of their information.
-          </p>
-        </div>
+        <div className="max-w-6xl mx-auto">
+          {/* Section Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 animate-reveal">
+            <div className="max-w-2xl">
+              <h2 id="about-title" className="text-sm font-bold tracking-widest text-accent uppercase mb-3">
+                Platform Overview
+              </h2>
+              <h3 className="text-3xl sm:text-4xl font-bold text-primary leading-tight">
+                Empowering Citizens through <br /> Transparent Reporting
+              </h3>
+            </div>
+            <p className="text-muted-foreground font-sans max-w-sm">
+              The ICPC Portal is the official digital channel for receiving and investigating 
+              complaints of corruption and related offences.
+            </p>
+          </div>
 
-        {/* Portal features */}
-        <div className="max-w-4xl mx-auto mb-16">
-          <h2 className="text-xl md:text-2xl font-bold text-primary text-center mb-8">
-            What You Can Do on This Portal
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-            {portalFeatures.map((feature) => (
-              <Link key={feature.title} to={feature.href} className="group">
-                <Card className="h-full border-2 border-transparent hover:border-accent transition-colors group-focus-visible:ring-2 group-focus-visible:ring-ring">
-                  <CardContent className="pt-6 text-center">
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-accent/10 text-accent mb-4">
-                      <feature.icon className="h-7 w-7" />
+          {/* Bento-style Features Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-6 mb-20">
+            {/* Main Feature - Large */}
+            <Link to="/submit-feedback" className="md:col-span-6 lg:col-span-7 group animate-reveal stagger-1">
+              <Card className="glass-card h-full border-accent/20 hover:border-accent transition-all duration-500 hover:shadow-2xl">
+                <CardContent className="p-8 flex flex-col h-full bg-noise">
+                  <div className="w-14 h-14 rounded-xl bg-accent/10 text-accent flex items-center justify-center mb-6">
+                    <FileText className="h-8 w-8" />
+                  </div>
+                  <h4 className="text-2xl font-bold text-primary mb-4">Submit Complaints</h4>
+                  <p className="text-muted-foreground font-sans mb-8 flex-1">
+                    Report corruption, abuse of office, or share public interest suggestions 
+                    through structured, secure forms. All data is protected under the ICPC Act.
+                  </p>
+                  <div className="flex items-center text-accent font-bold gap-2 group-hover:gap-4 transition-all">
+                    Start Reporting <ClipboardList className="h-5 w-5" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            {/* Feature 2 - Medium */}
+            <div className="md:col-span-6 lg:col-span-5 flex flex-col gap-6">
+              <Link to="/submit-feedback" className="group animate-reveal stagger-2 flex-1">
+                <Card className="glass-card border-icpc-gold-light/20 hover:border-accent transition-all duration-500">
+                  <CardContent className="p-6 flex items-center gap-6">
+                    <div className="shrink-0 w-12 h-12 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                      <Search className="h-6 w-6" />
                     </div>
-                    <h3 className="text-lg font-bold text-primary mb-2">{feature.title}</h3>
-                    <p className="text-sm text-muted-foreground font-sans">{feature.description}</p>
+                    <div>
+                      <h4 className="font-bold text-primary mb-1">Track Progress</h4>
+                      <p className="text-sm text-muted-foreground font-sans">Real-time monitoring via Reference ID.</p>
+                    </div>
                   </CardContent>
                 </Card>
               </Link>
-            ))}
-          </div>
-        </div>
 
-        {/* Guiding principles */}
-        <div className="max-w-4xl mx-auto mb-12">
-          <h2 className="text-xl md:text-2xl font-bold text-primary text-center mb-8">
-            Our Guiding Principles
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {principles.map((item) => (
-              <div key={item.title} className="text-center">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 text-primary mb-4">
-                  <item.icon className="h-7 w-7" />
+              <Link to="/self-reporting" className="group animate-reveal stagger-3 flex-1">
+                <Card className="glass-card border-icpc-green-light/20 hover:border-accent transition-all duration-500">
+                  <CardContent className="p-6 flex items-center gap-6">
+                    <div className="shrink-0 w-12 h-12 rounded-lg bg-accent/10 text-accent flex items-center justify-center">
+                      <Users className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-primary mb-1">Asset Disclosure</h4>
+                      <p className="text-sm text-muted-foreground font-sans">Voluntary asset declare & tracking.</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
+          </div>
+
+          {/* Guiding principles - refined row */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-5xl mx-auto mb-16 animate-reveal">
+            {principles.map((item, index) => (
+              <div key={item.title} className={`text-left stagger-${index + 1}`}>
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary text-primary-foreground mb-6 shadow-lg shadow-primary/20">
+                  <item.icon className="h-6 w-6" />
                 </div>
-                <h3 className="text-lg font-bold text-primary mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground font-sans">{item.description}</p>
+                <h3 className="text-lg font-bold text-primary mb-3">{item.title}</h3>
+                <p className="text-sm text-muted-foreground font-sans leading-relaxed">{item.description}</p>
               </div>
             ))}
           </div>

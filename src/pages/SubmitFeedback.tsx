@@ -13,31 +13,41 @@ const SubmitFeedbackPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-mesh">
       <Header />
       <main className="flex-1">
-        <section className="bg-primary text-primary-foreground py-12 sm:py-16">
-          <div className="container px-4 sm:px-6 max-w-4xl text-center">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
-              Submit Feedback & Complaints
+        <section className="relative py-16 sm:py-24 overflow-hidden">
+          <div className="absolute inset-0 bg-grid-white/[0.02] -z-10" />
+          <div className="container px-4 sm:px-6 max-w-4xl text-center animate-reveal">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-6 text-primary leading-tight">
+              Report <span className="text-accent underline decoration-accent/30 decoration-8 underline-offset-8">Corruption</span>
             </h1>
-            <p className="text-sm sm:text-base opacity-90 font-sans max-w-2xl mx-auto mb-6">
-              Report corruption, respond to investigations, or share public interest concerns.
-              All submissions are treated with strict confidentiality.
+            <p className="text-base sm:text-lg text-muted-foreground font-sans max-w-2xl mx-auto mb-8 leading-relaxed">
+              Every legitimate report is a step toward national accountability. 
+              Share your concerns securely and track their resolution in real time.
             </p>
-            <Button
-              size="lg"
-              variant="secondary"
-              className="font-sans gap-2"
-              onClick={() => setDialogOpen(true)}
-            >
-              <Search className="h-4 w-4" />
-              Track Complaint
-            </Button>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <Button
+                size="lg"
+                variant="secondary"
+                className="font-sans gap-2 glass-card hover:bg-secondary/80 transition-all"
+                onClick={() => setDialogOpen(true)}
+              >
+                <Search className="h-5 w-5" />
+                Track Complaint
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="font-sans border-border/40"
+                onClick={() => document.getElementById('submit')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                Submit New Report
+              </Button>
+            </div>
           </div>
         </section>
-        <HowItWorks />
-        <TrustSecurity />
+
         <FeedbackForms />
       </main>
       <Footer />

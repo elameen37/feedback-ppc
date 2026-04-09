@@ -11,13 +11,14 @@ const navLinks = [
 
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [visible, setVisible] = useState(true);
+  const [scrolled, setScrolled] = useState(false);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
     const handleScroll = () => {
       const currentY = window.scrollY;
       setVisible(currentY < lastScrollY.current || currentY < 10);
+      setScrolled(currentY > 20);
       lastScrollY.current = currentY;
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -39,9 +40,13 @@ const Header = () => {
   ];
 
   return (
-    <header className={`sticky top-0 z-50 w-full bg-primary shadow-lg transition-transform duration-300 ${visible ? "translate-y-0" : "-translate-y-full"}`}>
-      <div className="text-primary-foreground">
-        <div className="container flex items-center justify-between py-2.5">
+    <header 
+      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+        visible ? "translate-y-0" : "-translate-y-full"
+      } ${scrolled ? "glass-header" : "bg-primary shadow-lg"}`}
+    >
+      <div className={scrolled ? "text-foreground" : "text-primary-foreground"}>
+        <div className={`container flex items-center justify-between transition-all duration-300 ${scrolled ? "py-1.5" : "py-3"}`}>
           <div className="flex items-center gap-3">
             <a href="https://icpc.gov.ng/" target="_blank" rel="noopener noreferrer">
               <img src="/icpc-logo.jpeg" alt="ICPC Official Seal" className="h-10 w-10 rounded-full border-2 border-primary-foreground/30 object-cover cursor-pointer" />
@@ -62,12 +67,22 @@ const Header = () => {
         </div>
       </div>
 
-      <nav className="bg-primary-foreground/10 backdrop-blur-sm" aria-label="Main navigation">
+      <nav 
+        className={`transition-colors duration-300 ${
+          scrolled ? "bg-muted/50 border-t border-border" : "bg-primary-foreground/10"
+        } backdrop-blur-sm`} 
+        aria-label="Main navigation"
+      >
         <div className="container flex items-center overflow-hidden">
           <ul className="hidden md:flex items-center shrink-0">
             {allLinks.map(link => (
               <li key={link.href}>
-                <a href={link.href} className="block px-3 lg:px-4 py-2 text-xs lg:text-sm font-medium text-primary-foreground hover:bg-primary-foreground/15 transition-colors font-sans whitespace-nowrap">
+                <a 
+                  href={link.href} 
+                  className={`block px-3 lg:px-4 py-2 text-xs lg:text-sm font-medium transition-colors font-sans whitespace-nowrap ${
+                    scrolled ? "text-foreground hover:bg-muted" : "text-primary-foreground hover:bg-primary-foreground/15"
+                  }`}
+                >
                   {link.label}
                 </a>
               </li>

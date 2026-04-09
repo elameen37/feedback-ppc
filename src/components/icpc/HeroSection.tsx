@@ -21,39 +21,36 @@ const categories = [
     title: "Public Interest",
     description: "Share policy suggestions, civic concerns, or anti-corruption ideas.",
     href: "/submit-feedback",
+    color: "bg-blue-500/10 text-blue-500",
   },
 ];
 
 const HeroSection = () => {
   return (
-    <section id="home" className="bg-icpc-green-light py-10 sm:py-16 md:py-24" aria-labelledby="hero-title">
-      <div className="container px-4 sm:px-6 text-center">
+    <section id="home" className="bg-mesh relative overflow-hidden py-16 sm:py-20 md:py-28" aria-labelledby="hero-title">
+      <div className="absolute inset-0 bg-grid-white/[0.02] -z-10" />
+      <div className="container px-4 sm:px-6 text-center animate-reveal">
         <h1
           id="hero-title"
-          className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4 leading-tight"
+          className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-primary mb-6 leading-tight"
         >
-          ICPC Feedback & Complaint Tracking Portal
+          ICPC <span className="text-accent">Feedback</span> & <br className="hidden md:block" /> Complaint Portal
         </h1>
-        <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-6 font-sans">
-          A transparent, secure platform for submitting and tracking complaints,
-          responses, and public interest reports.
-        </p>
-        <p className="text-sm text-muted-foreground max-w-2xl mx-auto mb-12 font-sans">
-          The Independent Corrupt Practices and Other Related Offences Commission (ICPC) is
-          constitutionally mandated to receive and investigate complaints, corruption and
-          related offences. Your feedback strengthens our commitment to accountability.
+        <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-8 font-sans leading-relaxed">
+          A transparent, secure, and state-of-the-art platform for submitting and tracking 
+          legitimate reports and anti-corruption feedback.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto">
-          {categories.map((cat) => (
-            <Link key={cat.title} to={cat.href} className="group">
-              <Card className="h-full border-2 border-transparent hover:border-accent transition-colors group-focus-visible:ring-2 group-focus-visible:ring-ring">
-                <CardContent className="pt-6 text-center">
-                  <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-accent/10 text-accent mb-4">
-                    <cat.icon className="h-7 w-7" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {categories.map((cat, index) => (
+            <Link key={cat.title} to={cat.href} className={`group animate-reveal stagger-${index + 1}`}>
+              <Card className="glass-card h-full border-white/5 hover:border-accent/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
+                <CardContent className="pt-8 text-center bg-noise">
+                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-accent/10 text-accent mb-6 transition-transform group-hover:scale-110 duration-500`}>
+                    <cat.icon className="h-8 w-8" />
                   </div>
-                  <h2 className="text-lg font-bold text-primary mb-2">{cat.title}</h2>
-                  <p className="text-sm text-muted-foreground font-sans">{cat.description}</p>
+                  <h2 className="text-xl font-bold text-primary mb-3">{cat.title}</h2>
+                  <p className="text-sm text-muted-foreground font-sans leading-relaxed">{cat.description}</p>
                 </CardContent>
               </Card>
             </Link>

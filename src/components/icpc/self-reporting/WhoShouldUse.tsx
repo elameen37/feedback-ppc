@@ -41,20 +41,20 @@ const WhoShouldUse = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-8">
-          {items.map((item) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          {items.map((item, index) => (
             <div
               key={item.title}
-              className="flex items-start gap-4 bg-card rounded-lg p-5 border border-border"
+              className={`flex flex-col items-center text-center gap-4 bg-background glass-card rounded-2xl p-6 border-white/5 animate-reveal stagger-${index + 1}`}
             >
-              <div className="shrink-0 h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <item.icon className="h-5 w-5 text-primary" />
+              <div className="shrink-0 h-16 w-16 rounded-2xl bg-accent/10 flex items-center justify-center text-accent mb-2">
+                <item.icon className="h-8 w-8" />
               </div>
               <div>
-                <h3 className="font-bold text-sm text-foreground mb-1 font-sans">
+                <h3 className="font-bold text-lg text-primary mb-2 font-sans">
                   {item.title}
                 </h3>
-                <p className="text-sm text-muted-foreground font-sans">
+                <p className="text-sm text-muted-foreground font-sans leading-relaxed">
                   {item.desc}
                 </p>
               </div>
@@ -62,28 +62,35 @@ const WhoShouldUse = () => {
           ))}
         </div>
 
-        <div className="bg-primary/5 border border-primary/20 rounded-lg p-5">
-          <h3 className="font-bold text-sm text-primary mb-2 font-sans">
-            Your Rights & Protections
-          </h3>
-          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-muted-foreground font-sans">
-            <li className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
-              Strict confidentiality of all submissions
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
-              Legal review before any action is taken
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
-              Due process guaranteed under the ICPC Act
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent shrink-0" />
-              Whistleblower protection rights
-            </li>
-          </ul>
+        <div className="glass-card animate-reveal stagger-4 border-accent/20 bg-accent/5 rounded-2xl p-8">
+          <div className="flex flex-col md:flex-row md:items-center gap-8">
+            <div className="md:max-w-xs shrink-0">
+              <h3 className="font-bold text-2xl text-primary mb-2 font-sans">
+                Your Rights & <br /> <span className="text-accent">Protections</span>
+              </h3>
+              <p className="text-sm text-muted-foreground font-sans">
+                Voluntary disclosure is protected under the Corrupt Practices Act, ensuring due process.
+              </p>
+            </div>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm font-medium text-primary/80 font-sans flex-1">
+              <li className="flex items-center gap-3 bg-background/50 p-3 rounded-lg border border-white/5">
+                <Shield className="h-5 w-5 text-accent" />
+                Strict confidentiality of submissions
+              </li>
+              <li className="flex items-center gap-3 bg-background/50 p-3 rounded-lg border border-white/5">
+                <Scale className="h-5 w-5 text-accent" />
+                Due process guaranteed (ICPC Act)
+              </li>
+              <li className="flex items-center gap-3 bg-background/50 p-3 rounded-lg border border-white/5">
+                <Handshake className="h-5 w-5 text-accent" />
+                Legal review before any action
+              </li>
+              <li className="flex items-center gap-3 bg-background/50 p-3 rounded-lg border border-white/5">
+                <Users className="h-5 w-5 text-accent" />
+                Whistleblower protection rights
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </section>

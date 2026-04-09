@@ -116,3 +116,43 @@ body {
   overflow-x: hidden;
   width: 100%;
 }
+
+@layer components {
+  .bg-mesh {
+    background-color: hsl(var(--background));
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(195, 90%, 50%, 0.05) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(240, 20%, 24%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(195, 90%, 60%, 0.05) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(240, 15%, 10%, 0.1) 0px, transparent 50%);
+  }
+
+  .glass-card {
+    @apply bg-background/60 backdrop-blur-md border border-white/10 shadow-xl;
+  }
+
+  .glass-header {
+    @apply bg-background/80 backdrop-blur-lg border-b border-border shadow-sm;
+  }
+
+  .animate-reveal {
+    animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+  }
+
+  @keyframes reveal {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+}

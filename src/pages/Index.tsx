@@ -1,4 +1,4 @@
-import Header from "@/components/icpc/Header";
+import HeroSection from "@/components/icpc/HeroSection";
 import AboutSection from "@/components/icpc/AboutSection";
 import HowItWorks from "@/components/icpc/HowItWorks";
 import TrustSecurity from "@/components/icpc/TrustSecurity";
@@ -11,6 +11,7 @@ const Index = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
+        <HeroSection />
         <AboutSection />
         <HowItWorks />
         <TrustSecurity />
