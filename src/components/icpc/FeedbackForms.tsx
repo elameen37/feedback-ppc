@@ -100,11 +100,11 @@ const ComplainantForm = () => {
         <TrackingIdBanner trackingId={submittedTrackingId} />
       )}
 
-      <div className="flex items-center gap-3 p-4 rounded-xl glass-card bg-accent/5 border-accent/20 animate-reveal stagger-1">
+      <div className="flex items-center gap-3 p-5 rounded-2xl glass-card bg-accent/5 border-accent/20 animate-reveal stagger-1">
         <Shield className="h-6 w-6 text-accent shrink-0" />
         <div className="flex items-center gap-2">
           <Switch id="anonymous" checked={anonymous} onCheckedChange={setAnonymous} aria-label="Submit anonymously" />
-          <Label htmlFor="anonymous" className="text-sm font-sans cursor-pointer font-medium">
+          <Label htmlFor="anonymous" className="text-sm font-sans cursor-pointer font-bold text-primary/80">
             Submit anonymously (your identity will be protected)
           </Label>
         </div>
@@ -113,23 +113,23 @@ const ComplainantForm = () => {
       {!anonymous && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-reveal stagger-2">
           <div className="space-y-2">
-            <Label htmlFor="comp-name" className="font-sans font-medium">Full Name</Label>
-            <Input id="comp-name" placeholder="Enter your full name" className="glass-card bg-background/50" value={name} onChange={(e) => setName(e.target.value)} maxLength={100} />
+            <Label htmlFor="comp-name" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block font-sans">Full Name</Label>
+            <Input id="comp-name" placeholder="Enter your full name" className="glass-card bg-background/40 h-12 border-white/5 focus-visible:ring-accent" value={name} onChange={(e) => setName(e.target.value)} maxLength={100} />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="comp-contact" className="font-sans font-medium">Email or Phone</Label>
-            <Input id="comp-contact" placeholder="email@example.com or 080..." className="glass-card bg-background/50" value={contact} onChange={(e) => setContact(e.target.value)} maxLength={150} />
+            <Label htmlFor="comp-contact" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block font-sans">Government Email / Phone</Label>
+            <Input id="comp-contact" placeholder="email@example.com or 080..." className="glass-card bg-background/40 h-12 border-white/5 focus-visible:ring-accent" value={contact} onChange={(e) => setContact(e.target.value)} maxLength={150} />
           </div>
         </div>
       )}
 
       <div className="space-y-2 animate-reveal stagger-3">
-        <Label htmlFor="comp-category" className="font-sans font-medium">Complaint Category *</Label>
+        <Label htmlFor="comp-category" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block font-sans">Complaint Classification *</Label>
         <Select value={category} onValueChange={setCategory}>
-          <SelectTrigger id="comp-category" className="glass-card bg-background/50">
+          <SelectTrigger id="comp-category" className="glass-card bg-background/40 h-12 border-white/5 focus:ring-accent">
             <SelectValue placeholder="Select a category" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="glass-card border-white/10">
             <SelectItem value="corruption">Corruption</SelectItem>
             <SelectItem value="abuse_of_office">Abuse of Office</SelectItem>
             <SelectItem value="misconduct">Misconduct by Public Officials</SelectItem>
@@ -138,30 +138,38 @@ const ComplainantForm = () => {
       </div>
 
       <div className="space-y-2 animate-reveal stagger-4">
-        <Label htmlFor="comp-desc" className="font-sans font-medium">Description *</Label>
-        <Textarea id="comp-desc" className="glass-card bg-background/50 resize-none min-h-[150px]" placeholder="Provide a detailed description of the complaint..." value={description} onChange={(e) => setDescription(e.target.value)} maxLength={5000} />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="comp-file" className="font-sans">Supporting Documents</Label>
-        <div className="flex items-center gap-2">
-          <Upload className="h-4 w-4 text-muted-foreground" />
-          <Input id="comp-file" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" className="font-sans" />
-        </div>
-        <p className="text-xs text-muted-foreground font-sans">Accepted: PDF, DOC, DOCX, JPG, PNG (max 10MB)</p>
-      </div>
-
-      <div className="space-y-2">
-        <Label className="font-sans">Security Check *</Label>
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium bg-muted px-3 py-2 rounded font-sans">{captcha.question}</span>
-          <Input className="w-24" placeholder="Answer" value={captcha.answer} onChange={(e) => captcha.setAnswer(e.target.value)} maxLength={5} />
+        <Label htmlFor="comp-desc" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block font-sans">Incident Description *</Label>
+        <div className="relative group">
+           <Textarea id="comp-desc" className="glass-card bg-background/40 border-white/5 focus-visible:ring-accent resize-none min-h-[150px] p-4 text-sm leading-relaxed" placeholder="Provide a detailed description of the complaint..." value={description} onChange={(e) => setDescription(e.target.value)} maxLength={5000} />
+           <div className="absolute bottom-3 right-3 text-[9px] font-mono text-muted-foreground opacity-50">{description.length}/5000</div>
         </div>
       </div>
 
-      <Button type="submit" className="w-full md:w-auto font-sans gap-2" disabled={submitting}>
-        {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-        {submitting ? "Submitting..." : "Submit Complaint"}
+      <div className="space-y-2 animate-reveal stagger-5">
+        <Label htmlFor="comp-file" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block font-sans">Evidence Attachments</Label>
+        <div className="flex items-center gap-4 p-4 rounded-xl border border-dashed border-white/10 bg-white/5 hover:bg-white/10 transition-colors group cursor-pointer relative">
+          <Upload className="h-5 w-5 text-accent group-hover:scale-110 transition-transform" />
+          <div className="flex-1">
+             <p className="text-xs font-sans font-medium">Click to upload or drag & drop</p>
+             <p className="text-[9px] text-muted-foreground font-sans">PDF, DOC, JPG, PNG (max 10MB)</p>
+          </div>
+          <Input id="comp-file" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" className="absolute inset-0 opacity-0 cursor-pointer" />
+        </div>
+      </div>
+
+      <div className="p-6 rounded-2xl bg-black/10 border border-white/5 animate-reveal stagger-6">
+        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3 block font-sans">Human Verification *</Label>
+        <div className="flex items-center gap-4">
+          <div className="h-11 px-4 flex items-center bg-primary text-white font-mono font-bold rounded-xl shadow-inner tracking-tighter">
+            {captcha.question}
+          </div>
+          <Input className="w-32 h-11 glass-card bg-background/40 border-white/5 text-center font-mono text-lg focus-visible:ring-accent" placeholder="Result" value={captcha.answer} onChange={(e) => captcha.setAnswer(e.target.value)} maxLength={5} />
+        </div>
+      </div>
+
+      <Button type="submit" className="w-full md:w-auto font-sans gap-2 h-12 px-8 bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 animate-reveal stagger-6" disabled={submitting}>
+        {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />}
+        {submitting ? "Processing Submission..." : "Dispatch Secure Complaint"}
       </Button>
     </form>
   );
@@ -220,39 +228,43 @@ const RespondentForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {submittedTrackingId && (
         <TrackingIdBanner trackingId={submittedTrackingId} />
       )}
-      <div className="space-y-2">
-        <Label htmlFor="resp-ref" className="font-sans">Reference ID *</Label>
-        <Input id="resp-ref" placeholder="e.g. ICPC-2026-ABC123" value={refId} onChange={(e) => setRefId(e.target.value)} maxLength={30} />
+      <div className="space-y-2 animate-reveal stagger-1">
+        <Label htmlFor="resp-ref" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block font-sans">Case Reference ID *</Label>
+        <Input id="resp-ref" placeholder="e.g. ICPC-2026-ABC123" className="glass-card bg-background/40 h-12 border-white/5 focus-visible:ring-accent font-mono" value={refId} onChange={(e) => setRefId(e.target.value)} maxLength={30} />
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="resp-name" className="font-sans">Name / Organisation *</Label>
-        <Input id="resp-name" placeholder="Enter name or organisation" value={name} onChange={(e) => setName(e.target.value)} maxLength={150} />
+      <div className="space-y-2 animate-reveal stagger-2">
+        <Label htmlFor="resp-name" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block font-sans">Official Identity / Organisation *</Label>
+        <Input id="resp-name" placeholder="Enter name or legal entity" className="glass-card bg-background/40 h-12 border-white/5 focus-visible:ring-accent" value={name} onChange={(e) => setName(e.target.value)} maxLength={150} />
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="resp-text" className="font-sans">Response *</Label>
-        <Textarea id="resp-text" placeholder="Provide your official response..." rows={5} value={response} onChange={(e) => setResponse(e.target.value)} maxLength={5000} />
+      <div className="space-y-2 animate-reveal stagger-3">
+        <Label htmlFor="resp-text" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block font-sans">Formal Response Body *</Label>
+        <Textarea id="resp-text" placeholder="Provide your comprehensive official response..." className="glass-card bg-background/40 border-white/5 focus-visible:ring-accent resize-none min-h-[180px] p-4 text-sm leading-relaxed" value={response} onChange={(e) => setResponse(e.target.value)} maxLength={5000} />
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="resp-file" className="font-sans">Attachments</Label>
-        <div className="flex items-center gap-2">
-          <Upload className="h-4 w-4 text-muted-foreground" />
-          <Input id="resp-file" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" className="font-sans" />
+      <div className="space-y-2 animate-reveal stagger-4">
+        <Label htmlFor="resp-file" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block font-sans">Supporting Attachments</Label>
+        <div className="flex items-center gap-4 p-4 rounded-xl border border-dashed border-white/10 bg-white/5 hover:bg-white/10 transition-colors group cursor-pointer relative">
+          <Upload className="h-5 w-5 text-accent group-hover:scale-110 transition-transform" />
+          <div className="flex-1">
+             <p className="text-xs font-sans font-medium">Upload official documents</p>
+             <p className="text-[9px] text-muted-foreground font-sans">Secure PDF/DOC transmission (max 10MB)</p>
+          </div>
+          <Input id="resp-file" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" className="absolute inset-0 opacity-0 cursor-pointer" />
         </div>
       </div>
-      <div className="flex items-start gap-3">
-        <Checkbox id="resp-declare" checked={declared} onCheckedChange={(c) => setDeclared(c === true)} />
-        <Label htmlFor="resp-declare" className="text-sm font-sans leading-relaxed cursor-pointer">
-          I confirm that this response is truthful and accurate to the best of my knowledge.
-          I understand that providing false information may attract legal consequences under the ICPC Act.
+      <div className="flex items-start gap-4 p-4 rounded-2xl bg-primary/5 border border-primary/10 animate-reveal stagger-5">
+        <Checkbox id="resp-declare" checked={declared} onCheckedChange={(c) => setDeclared(c === true)} className="mt-1 border-primary/30" />
+        <Label htmlFor="resp-declare" className="text-[11px] font-sans leading-relaxed cursor-pointer font-medium text-foreground/80">
+          I formally declare that the information provided in this response is truthful and exhaustive. 
+          Misleading the Commission may attract severe legal consequences under the ICPC Act.
         </Label>
       </div>
-      <Button type="submit" className="w-full md:w-auto font-sans gap-2" disabled={submitting}>
-        {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-        {submitting ? "Submitting..." : "Submit Response"}
+      <Button type="submit" className="w-full md:w-auto font-sans gap-2 h-12 px-8 bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 animate-reveal stagger-6" disabled={submitting}>
+        {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+        {submitting ? "Transmitting..." : "Submit Formal Response"}
       </Button>
     </form>
   );
@@ -301,25 +313,27 @@ const PublicInterestForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {submittedTrackingId && (
         <TrackingIdBanner trackingId={submittedTrackingId} />
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-reveal stagger-1">
         <div className="space-y-2">
-          <Label htmlFor="pub-name" className="font-sans">Name (optional)</Label>
-          <Input id="pub-name" placeholder="Your name" maxLength={100} />
+          <Label htmlFor="pub-name" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block font-sans">Full Name (Optional)</Label>
+          <Input id="pub-name" placeholder="Leave blank for anonymity" className="glass-card bg-background/40 h-12 border-white/5 focus-visible:ring-accent" maxLength={100} />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="pub-contact" className="font-sans">Contact (optional)</Label>
-          <Input id="pub-contact" placeholder="Email or phone" maxLength={150} />
+          <Label htmlFor="pub-contact" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block font-sans">Return Contact (Optional)</Label>
+          <Input id="pub-contact" placeholder="Email for follow-up" className="glass-card bg-background/40 h-12 border-white/5 focus-visible:ring-accent" maxLength={150} />
         </div>
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="pub-topic" className="font-sans">Topic *</Label>
+      <div className="space-y-2 animate-reveal stagger-2">
+        <Label htmlFor="pub-topic" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block font-sans">Feedback Subject *</Label>
         <Select value={topic} onValueChange={setTopic}>
-          <SelectTrigger id="pub-topic"><SelectValue placeholder="Select a topic" /></SelectTrigger>
-          <SelectContent>
+          <SelectTrigger id="pub-topic" className="glass-card bg-background/40 h-12 border-white/5 focus:ring-accent">
+            <SelectValue placeholder="What are you sharing?" />
+          </SelectTrigger>
+          <SelectContent className="glass-card border-white/10">
             <SelectItem value="policy_suggestion">Policy Suggestion</SelectItem>
             <SelectItem value="public_service_concern">Public Service Concern</SelectItem>
             <SelectItem value="anti_corruption_idea">Anti-Corruption Idea</SelectItem>
@@ -327,13 +341,13 @@ const PublicInterestForm = () => {
           </SelectContent>
         </Select>
       </div>
-      <div className="space-y-2">
-        <Label htmlFor="pub-message" className="font-sans">Message *</Label>
-        <Textarea id="pub-message" placeholder="Share your feedback, suggestion, or concern..." rows={5} value={message} onChange={(e) => setMessage(e.target.value)} maxLength={5000} />
+      <div className="space-y-2 animate-reveal stagger-3">
+        <Label htmlFor="pub-message" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block font-sans">Detailed Message *</Label>
+        <Textarea id="pub-message" placeholder="Share your insights, suggestions, or observations..." className="glass-card bg-background/40 border-white/5 focus-visible:ring-accent resize-none min-h-[160px] p-4 text-sm leading-relaxed" value={message} onChange={(e) => setMessage(e.target.value)} maxLength={5000} />
       </div>
-      <Button type="submit" className="w-full md:w-auto font-sans gap-2" disabled={submitting}>
-        {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-        {submitting ? "Submitting..." : "Submit Feedback"}
+      <Button type="submit" className="w-full md:w-auto font-sans h-12 px-10 bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 animate-reveal stagger-4" disabled={submitting}>
+        {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+        {submitting ? "Sharing..." : "Share Public Insight"}
       </Button>
     </form>
   );

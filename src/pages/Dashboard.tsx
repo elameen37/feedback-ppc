@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { LogOut, Search, FileDown, Filter, Clock, Eye, Activity, CheckCircle2, AlertCircle, Inbox, TrendingUp } from "lucide-react";
+import { LogOut, Search, FileDown, Filter, Clock, Eye, Activity, CheckCircle2, AlertCircle, Inbox, TrendingUp, Shield } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { sendNotification } from "@/lib/notifications";
 
