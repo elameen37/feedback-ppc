@@ -106,15 +106,9 @@
   animation: marquee 20s linear infinite;
 }
 
-/* Ensure no horizontal overflow on any device */
-html {
-  overflow-x: hidden;
-  width: 100%;
-}
-
-body {
-  overflow-x: hidden;
-  width: 100%;
+/* Prevent horizontal overflow on root */
+html, body {
+  max-width: 100vw;
 }
 
 @layer components {

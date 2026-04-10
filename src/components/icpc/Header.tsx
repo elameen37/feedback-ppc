@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NavLink } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
 const navLinks = [
@@ -71,14 +72,24 @@ const Header = () => {
           <ul className="hidden md:flex items-center shrink-0">
             {allLinks.map(link => (
               <li key={link.href}>
-                <a 
-                  href={link.href} 
-                  className={`block px-3 lg:px-4 py-2 text-xs lg:text-sm font-medium transition-colors font-sans whitespace-nowrap ${
-                    scrolled ? "text-foreground hover:bg-muted" : "text-primary-foreground hover:bg-primary-foreground/15"
-                  }`}
+                <NavLink 
+                  to={link.href} 
+                  className={({ isActive }) => `
+                    relative block px-3 lg:px-4 py-2 text-xs lg:text-sm font-medium transition-all font-sans whitespace-nowrap
+                    ${isActive 
+                      ? "text-accent" 
+                      : scrolled ? "text-foreground hover:text-accent" : "text-primary-foreground hover:bg-primary-foreground/15"}
+                  `}
                 >
-                  {link.label}
-                </a>
+                  {({ isActive }) => (
+                    <>
+                      {link.label}
+                      {isActive && (
+                        <span className="absolute bottom-0 left-0 w-full h-0.5 bg-accent animate-reveal" />
+                      )}
+                    </>
+                  )}
+                </NavLink>
               </li>
             ))}
           </ul>
@@ -101,9 +112,18 @@ const Header = () => {
           <ul className="container py-2 space-y-0.5">
             {allLinks.map(link => (
               <li key={link.href}>
-                <a href={link.href} className="block px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary-foreground/10 rounded transition-colors font-sans" onClick={() => setMobileOpen(false)}>
+                <NavLink 
+                  to={link.href} 
+                  className={({ isActive }) => `
+                    block px-4 py-2.5 text-sm font-medium rounded transition-colors font-sans
+                    ${isActive 
+                      ? "bg-accent text-accent-foreground" 
+                      : "text-primary-foreground hover:bg-primary-foreground/10"}
+                  `}
+                  onClick={() => setMobileOpen(false)}
+                >
                   {link.label}
-                </a>
+                </NavLink>
               </li>
             ))}
           </ul>
