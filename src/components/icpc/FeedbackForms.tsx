@@ -91,6 +91,8 @@ const ComplainantForm = () => {
       setDescription("");
       setName("");
       setContact("");
+      setAnonymous(false);
+      captcha.setAnswer("");
     }
   };
 
@@ -182,6 +184,7 @@ const RespondentForm = () => {
   const [declared, setDeclared] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submittedTrackingId, setSubmittedTrackingId] = useState<string | null>(null);
+  const captcha = useCaptcha();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -191,6 +194,10 @@ const RespondentForm = () => {
     }
     if (!declared) {
       toast({ title: "Declaration Required", description: "You must confirm the truthfulness of your response.", variant: "destructive" });
+      return;
+    }
+    if (!captcha.isValid) {
+      toast({ title: "CAPTCHA Failed", description: "Please solve the arithmetic question correctly.", variant: "destructive" });
       return;
     }
 
@@ -224,6 +231,7 @@ const RespondentForm = () => {
       setName("");
       setResponse("");
       setDeclared(false);
+      captcha.setAnswer("");
     }
   };
 
@@ -255,6 +263,15 @@ const RespondentForm = () => {
           <Input id="resp-file" type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" className="absolute inset-0 opacity-0 cursor-pointer" />
         </div>
       </div>
+      <div className="p-6 rounded-2xl bg-black/10 border border-white/5 animate-reveal stagger-5">
+        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3 block font-sans">Verification Challenge *</Label>
+        <div className="flex items-center gap-4">
+          <div className="h-11 px-4 flex items-center bg-primary text-white font-mono font-bold rounded-xl shadow-inner tracking-tighter">
+            {captcha.question}
+          </div>
+          <Input className="w-32 h-11 glass-card bg-background/40 border-white/5 text-center font-mono text-lg focus-visible:ring-accent" placeholder="Result" value={captcha.answer} onChange={(e) => captcha.setAnswer(e.target.value)} maxLength={5} />
+        </div>
+      </div>
       <div className="flex items-start gap-4 p-4 rounded-2xl bg-primary/5 border border-primary/10 animate-reveal stagger-5">
         <Checkbox id="resp-declare" checked={declared} onCheckedChange={(c) => setDeclared(c === true)} className="mt-1 border-primary/30" />
         <Label htmlFor="resp-declare" className="text-[11px] font-sans leading-relaxed cursor-pointer font-medium text-foreground/80">
@@ -273,13 +290,20 @@ const RespondentForm = () => {
 const PublicInterestForm = () => {
   const [topic, setTopic] = useState("");
   const [message, setMessage] = useState("");
+  const [name, setName] = useState("");
+  const [contact, setContact] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submittedTrackingId, setSubmittedTrackingId] = useState<string | null>(null);
+  const captcha = useCaptcha();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!topic || !message.trim()) {
       toast({ title: "Validation Error", description: "Please select a topic and enter your message.", variant: "destructive" });
+      return;
+    }
+    if (!captcha.isValid) {
+      toast({ title: "CAPTCHA Failed", description: "Please solve the arithmetic question correctly.", variant: "destructive" });
       return;
     }
 
@@ -290,6 +314,8 @@ const PublicInterestForm = () => {
       tracking_id: trackingId,
       anonymous: !user,
       submitter_id: user?.id ?? null,
+      submitter_name: name.trim() || null,
+      submitter_contact: contact.trim() || null,
       category: topic as ComplaintCategory,
       description: message.trim(),
       submission_type: "public_interest",
@@ -309,6 +335,9 @@ const PublicInterestForm = () => {
       setSubmittedTrackingId(trackingId);
       setTopic("");
       setMessage("");
+      setName("");
+      setContact("");
+      captcha.setAnswer("");
     }
   };
 
@@ -320,11 +349,11 @@ const PublicInterestForm = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-reveal stagger-1">
         <div className="space-y-2">
           <Label htmlFor="pub-name" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block font-sans">Full Name (Optional)</Label>
-          <Input id="pub-name" placeholder="Leave blank for anonymity" className="glass-card bg-background/40 h-12 border-white/5 focus-visible:ring-accent" maxLength={100} />
+          <Input id="pub-name" placeholder="Leave blank for anonymity" className="glass-card bg-background/40 h-12 border-white/5 focus-visible:ring-accent" value={name} onChange={(e) => setName(e.target.value)} maxLength={100} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="pub-contact" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block font-sans">Return Contact (Optional)</Label>
-          <Input id="pub-contact" placeholder="Email for follow-up" className="glass-card bg-background/40 h-12 border-white/5 focus-visible:ring-accent" maxLength={150} />
+          <Input id="pub-contact" placeholder="Email for follow-up" className="glass-card bg-background/40 h-12 border-white/5 focus-visible:ring-accent" value={contact} onChange={(e) => setContact(e.target.value)} maxLength={150} />
         </div>
       </div>
       <div className="space-y-2 animate-reveal stagger-2">
@@ -344,6 +373,15 @@ const PublicInterestForm = () => {
       <div className="space-y-2 animate-reveal stagger-3">
         <Label htmlFor="pub-message" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 block font-sans">Detailed Message *</Label>
         <Textarea id="pub-message" placeholder="Share your insights, suggestions, or observations..." className="glass-card bg-background/40 border-white/5 focus-visible:ring-accent resize-none min-h-[160px] p-4 text-sm leading-relaxed" value={message} onChange={(e) => setMessage(e.target.value)} maxLength={5000} />
+      </div>
+      <div className="p-6 rounded-2xl bg-black/10 border border-white/5 animate-reveal stagger-3">
+        <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3 block font-sans">Human verification Protocol *</Label>
+        <div className="flex items-center gap-4">
+          <div className="h-11 px-4 flex items-center bg-primary text-white font-mono font-bold rounded-xl shadow-inner tracking-tighter">
+            {captcha.question}
+          </div>
+          <Input className="w-32 h-11 glass-card bg-background/40 border-white/5 text-center font-mono text-lg focus-visible:ring-accent" placeholder="Result" value={captcha.answer} onChange={(e) => captcha.setAnswer(e.target.value)} maxLength={5} />
+        </div>
       </div>
       <Button type="submit" className="w-full md:w-auto font-sans h-12 px-10 bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 animate-reveal stagger-4" disabled={submitting}>
         {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}

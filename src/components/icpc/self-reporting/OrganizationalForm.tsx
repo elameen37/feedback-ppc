@@ -65,8 +65,13 @@ const OrganizationalForm = () => {
       toast({ title: "Submission Error", description: error.message, variant: "destructive" });
     } else {
       setSubmittedTrackingId(trackingId);
-      setOrgName(""); setRcNumber(""); setComplianceOfficer("");
-      setDescription(""); setCorrectiveSteps(""); setDeclared(false); setCaptchaAnswer("");
+      setOrgName(""); 
+      setRcNumber(""); 
+      setComplianceOfficer("");
+      setDescription(""); 
+      setCorrectiveSteps(""); 
+      setDeclared(false); 
+      setCaptchaAnswer("");
     }
   };
 

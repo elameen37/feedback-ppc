@@ -69,6 +69,7 @@ const Dashboard = () => {
   const [registerDialogOpen, setRegisterDialogOpen] = useState(false);
   const [newOfficerData, setNewOfficerData] = useState({ full_name: "", email: "", password: "" });
   const [isRegistering, setIsRegistering] = useState(false);
+  const [realtimeStatus, setRealtimeStatus] = useState<"connected" | "connecting" | "disconnected">("connecting");
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -93,7 +94,7 @@ const Dashboard = () => {
   };
 
   const subscribeToNewComplaints = () => {
-    return supabase
+    const channel = supabase
       .channel('schema-db-changes')
       .on(
         'postgres_changes',
@@ -116,7 +117,15 @@ const Dashboard = () => {
           fetchComplaints(); // Refresh to update count and list
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          setRealtimeStatus("connected");
+        } else if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+          setRealtimeStatus("disconnected");
+        }
+      });
+    
+    return channel;
   };
 
   const fetchComplaints = async () => {
@@ -259,6 +268,15 @@ const Dashboard = () => {
     }
   };
 
+  const handleReconnect = () => {
+    setRealtimeStatus("connecting");
+    const channel = subscribeToNewComplaints();
+    toast({ title: "Intelligence Link Reset", description: "Signal re-established with central repository." });
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  };
+
   useEffect(() => {
     if (activeTab === "personnel") {
       fetchPersonnel();
@@ -359,12 +377,24 @@ const Dashboard = () => {
             </div>
             
               <div className="flex items-center gap-3 p-1 glass-card border-white/10 rounded-2xl">
+                <div className="flex items-center gap-2 px-3 py-1 mr-2 rounded-full bg-black/20 border border-white/5 group/link">
+                  <div className={`h-1.5 w-1.5 rounded-full ${
+                    realtimeStatus === "connected" ? "bg-green-500 animate-pulse" : 
+                    realtimeStatus === "connecting" ? "bg-yellow-500 animate-pulse" : "bg-red-500"
+                  }`} />
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mr-1">
+                    Link: {realtimeStatus}
+                  </span>
+                  <Button variant="ghost" size="sm" className="h-4 w-4 p-0 hover:bg-transparent" onClick={handleReconnect} title="Re-sync Signal">
+                    <TrendingUp className={`h-3 w-3 ${realtimeStatus === "connected" ? "text-green-500" : "text-muted-foreground animate-spin"}`} />
+                  </Button>
+                </div>
                 <Sheet open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
                   <SheetTrigger asChild>
                     <Button variant="ghost" size="sm" className="relative h-8 w-8 p-0 hover:bg-white/10">
-                      <Bell className="h-4 w-4" />
+                      <Bell className={`h-4 w-4 ${notifications.some(n => n.unread) ? "text-accent animate-[bounce_2s_infinite]" : ""}`} />
                       {notifications.some(n => n.unread) && (
-                        <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-accent rounded-full border-2 border-[#0D1117] animate-pulse" />
+                        <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-accent rounded-full border-2 border-[#0D1117]" />
                       )}
                     </Button>
                   </SheetTrigger>
@@ -408,10 +438,27 @@ const Dashboard = () => {
                       )}
                     </div>
                     {notifications.length > 0 && (
-                      <Button variant="ghost" size="sm" className="w-full mt-6 font-sans text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-primary"
-                              onClick={() => setNotifications([])}>
-                        Clear All Logs
-                      </Button>
+                      <div className="flex flex-col gap-2 mt-6">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full glass-card border-white/10 font-sans text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-primary h-10"
+                          onClick={() => {
+                            setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
+                            toast({ title: "Intelligence Acknowledged", description: "All reports marked as read." });
+                          }}
+                        >
+                          Mark All as Read
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="w-full font-sans text-[10px] uppercase font-bold tracking-widest text-destructive hover:bg-destructive/10 h-10"
+                          onClick={() => setNotifications([])}
+                        >
+                          Clear All Logs
+                        </Button>
+                      </div>
                     )}
                   </SheetContent>
                 </Sheet>

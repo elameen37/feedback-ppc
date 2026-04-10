@@ -67,8 +67,14 @@ const PublicOfficerForm = () => {
       toast({ title: "Submission Error", description: error.message, variant: "destructive" });
     } else {
       setSubmittedTrackingId(trackingId);
-      setFullName(""); setPosition(""); setMda(""); setNature("");
-      setDates(""); setAmount(""); setDescription(""); setCooperation(false);
+      setFullName(""); 
+      setPosition(""); 
+      setMda(""); 
+      setNature("");
+      setDates(""); 
+      setAmount(""); 
+      setDescription(""); 
+      setCooperation(false);
       setCaptchaAnswer("");
     }
   };

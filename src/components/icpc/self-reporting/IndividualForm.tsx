@@ -63,8 +63,13 @@ const IndividualForm = () => {
       toast({ title: "Submission Error", description: error.message, variant: "destructive" });
     } else {
       setSubmittedTrackingId(trackingId);
-      setFullName(""); setContact(""); setDescription("");
-      setCaseRef(""); setOthersInvolved(""); setCaptchaAnswer("");
+      setFullName(""); 
+      setContact(""); 
+      setDescription("");
+      setCaseRef(""); 
+      setOthersInvolved(""); 
+      setCaptchaAnswer("");
+      setAnonymous(false);
     }
   };
 
