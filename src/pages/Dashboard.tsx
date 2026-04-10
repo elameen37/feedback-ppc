@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { LogOut, Search, FileDown, Filter, Clock, Eye, Activity, CheckCircle2, AlertCircle, Inbox, TrendingUp, Shield } from "lucide-react";
+import { LogOut, Search, FileDown, Filter, Clock, Eye, Activity, CheckCircle2, AlertCircle, Inbox, TrendingUp, Shield, ChevronLeft, ChevronRight, Bell } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import { sendNotification } from "@/lib/notifications";
 
@@ -54,6 +54,11 @@ const Dashboard = () => {
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [newStatus, setNewStatus] = useState("");
 
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/auth");
@@ -61,16 +66,65 @@ const Dashboard = () => {
   }, [authLoading, user, navigate]);
 
   useEffect(() => {
-    if (user) fetchComplaints();
-  }, [user]);
+    if (user) {
+      fetchComplaints();
+      const channel = subscribeToNewComplaints();
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [user, currentPage, filterStatus, filterCategory, searchQuery]);
+
+  const playNotificationSound = () => {
+    const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
+    audio.volume = 0.4;
+    audio.play().catch(e => console.log("Audio play blocked by browser:", e));
+  };
+
+  const subscribeToNewComplaints = () => {
+    return supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'complaints' },
+        (payload) => {
+          console.log('New Intelligence Received!', payload);
+          playNotificationSound();
+          toast({
+            title: "New Intelligence Received!",
+            description: `A new report has been filed securely. Reference ID: ${payload.new.tracking_id}`,
+            className: "glass-card border-accent bg-accent/10 border-2",
+          });
+          fetchComplaints(); // Refresh to update count and list
+        }
+      )
+      .subscribe();
+  };
 
   const fetchComplaints = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    
+    let query = supabase
       .from("complaints")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (!error && data) setComplaints(data);
+      .select("*", { count: 'exact' });
+
+    // Apply Filters Server-side if possible, or client-side if complex
+    // For now, let's do server-side status/category filters
+    if (filterStatus !== "all") query = query.eq("status", filterStatus);
+    if (filterCategory !== "all") query = query.eq("category", filterCategory);
+    if (searchQuery) query = query.ilike("tracking_id", `%${searchQuery}%`);
+
+    const from = (currentPage - 1) * pageSize;
+    const to = from + pageSize - 1;
+
+    const { data, error, count } = await query
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    if (!error && data) {
+      setComplaints(data);
+      setTotalCount(count || 0);
+    }
     setLoading(false);
   };
 
@@ -133,13 +187,7 @@ const Dashboard = () => {
     URL.revokeObjectURL(url);
   };
 
-  const filtered = complaints.filter(c => {
-    if (filterStatus !== "all" && c.status !== filterStatus) return false;
-    if (filterCategory !== "all" && c.category !== filterCategory) return false;
-    if (searchQuery && !c.tracking_id.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !c.description.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-    return true;
-  });
+  // Remove client-side filtered logic as it's now handled by the server
 
   // SLA: complaints older than 14 days still in "submitted" status
   const getSLAWarning = (c: Complaint) => {
@@ -183,7 +231,7 @@ const Dashboard = () => {
                 </h1>
               </div>
               <p className="text-sm text-muted-foreground font-sans max-w-md">
-                Managing <span className="text-primary font-bold">{complaints.length}</span> security reports. 
+                Managing <span className="text-primary font-bold">{totalCount}</span> security reports. 
                 SLA compliance is currently at <span className="text-accent font-bold">94%</span>.
               </p>
             </div>
@@ -245,12 +293,12 @@ const Dashboard = () => {
             <div className="p-6 border-b border-white/5 bg-white/5 flex flex-col lg:flex-row gap-4">
               <div className="relative flex-1 group">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-accent transition-colors" />
-                <Input placeholder="Filter by Tracking ID or keywords..." 
+                <Input placeholder="Filter by Intel ID (e.g. ICPC-2026)..." 
                        className="pl-11 h-12 bg-black/10 border-white/5 rounded-xl font-sans text-sm focus-visible:ring-accent"
-                       value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                       value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }} />
               </div>
               <div className="flex gap-3">
-                <Select value={filterCategory} onValueChange={setFilterCategory}>
+                <Select value={filterCategory} onValueChange={val => { setFilterCategory(val); setCurrentPage(1); }}>
                   <SelectTrigger className="w-full lg:w-56 h-12 bg-black/10 border-white/5 rounded-xl font-sans text-sm">
                     <Filter className="h-4 w-4 mr-2" />
                     <SelectValue placeholder="All Categories" />
@@ -279,7 +327,7 @@ const Dashboard = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filtered.length === 0 ? (
+                  {complaints.length === 0 ? (
                     <TableRow className="border-white/5">
                       <TableCell colSpan={6} className="text-center py-20 text-muted-foreground font-sans">
                         <div className="flex flex-col items-center gap-2 opacity-50">
@@ -288,10 +336,10 @@ const Dashboard = () => {
                         </div>
                       </TableCell>
                     </TableRow>
-                  ) : filtered.map(c => {
+                  ) : complaints.map(c => {
                     const sla = getSLAWarning(c);
                     return (
-                      <TableRow key={c.id} className="border-white/5 hover:bg-white/5 transition-colors group">
+                      <TableRow key={c.id} className="border-white/5 hover:bg-white/5 transition-colors group animate-reveal">
                         <TableCell className="font-mono text-xs font-bold text-primary group-hover:text-accent transition-colors">{c.tracking_id}</TableCell>
                         <TableCell>
                           <div className="flex flex-col">
@@ -328,6 +376,46 @@ const Dashboard = () => {
                   })}
                 </TableBody>
               </Table>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="p-6 border-t border-white/5 bg-black/10 flex items-center justify-between">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground font-sans">
+                Showing <span className="text-foreground">{Math.min(complaints.length, pageSize)}</span> of <span className="text-foreground">{totalCount}</span> Intelligence Reports
+              </p>
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  className="glass-card border-white/10 h-8 w-8 p-0"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: Math.ceil(totalCount / pageSize) }).map((_, i) => (
+                    <Button 
+                      key={i}
+                      variant={currentPage === i + 1 ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`h-8 w-8 p-0 text-[10px] font-bold font-sans ${currentPage === i + 1 ? 'bg-primary text-white shadow-lg' : 'glass-card border-white/10'}`}
+                    >
+                      {i + 1}
+                    </Button>
+                  )).slice(Math.max(0, currentPage - 3), Math.min(Math.ceil(totalCount / pageSize), currentPage + 2))}
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  disabled={currentPage >= Math.ceil(totalCount / pageSize)}
+                  onClick={() => setCurrentPage(prev => prev + 1)}
+                  className="glass-card border-white/10 h-8 w-8 p-0"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
