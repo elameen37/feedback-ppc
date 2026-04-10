@@ -1,3 +1,4 @@
+import Header from "@/components/icpc/Header";
 import HeroSection from "@/components/icpc/HeroSection";
 import AboutSection from "@/components/icpc/AboutSection";
 import HowItWorks from "@/components/icpc/HowItWorks";
@@ -19,6 +20,9 @@ const Index = () => {
       </main>
       <Footer />
       <BackToTop />
+      <div className="fixed bottom-2 right-2 text-[10px] text-muted-foreground/30 pointer-events-none select-none">
+        System: Active
+      </div>
     </div>
   );
 };

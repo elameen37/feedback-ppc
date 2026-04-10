@@ -26,12 +26,7 @@ const Header = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  let auth: ReturnType<typeof useAuth> | null = null;
-  try {
-    auth = useAuth();
-  } catch {
-    // AuthProvider not mounted yet
-  }
+  const auth = useAuth();
 
   const allLinks = [
     ...navLinks,
