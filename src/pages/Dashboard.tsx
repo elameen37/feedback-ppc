@@ -14,7 +14,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { LogOut, Search, FileDown, Filter, Clock, Eye, Activity, CheckCircle2, AlertCircle, Inbox, TrendingUp, Shield, ChevronLeft, ChevronRight, Bell, Users, ShieldCheck, UserPlus, Settings2 } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from "@/components/ui/sheet";
+import { LogOut, Search, FileDown, Filter, Clock, Eye, Activity, CheckCircle2, AlertCircle, Inbox, TrendingUp, Shield, ChevronLeft, ChevronRight, Bell, Users, ShieldCheck, UserPlus, Settings2, Loader2, Check } from "lucide-react";
 import type { Tables, Database } from "@/integrations/supabase/types";
 import { sendNotification } from "@/lib/notifications";
 
@@ -63,6 +64,11 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState<"reports" | "personnel">("reports");
   const [personnel, setPersonnel] = useState<any[]>([]);
   const [personnelLoading, setPersonnelLoading] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [registerDialogOpen, setRegisterDialogOpen] = useState(false);
+  const [newOfficerData, setNewOfficerData] = useState({ full_name: "", email: "", password: "" });
+  const [isRegistering, setIsRegistering] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -93,7 +99,14 @@ const Dashboard = () => {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'complaints' },
         (payload) => {
-          console.log('New Intelligence Received!', payload);
+          const newNotify = {
+            id: payload.new.id,
+            title: "New Intelligence Received!",
+            description: `Ref ID: ${payload.new.tracking_id} - ${payload.new.category.replace(/_/g, ' ')}`,
+            time: new Date().toLocaleTimeString(),
+            unread: true
+          };
+          setNotifications(prev => [newNotify, ...prev]);
           playNotificationSound();
           toast({
             title: "New Intelligence Received!",
@@ -152,30 +165,82 @@ const Dashboard = () => {
     if (role !== "admin") return;
     setPersonnelLoading(true);
     
-    // Fetch profiles and join with user_roles
-    const { data: profiles, error } = await supabase
-      .from("profiles")
-      .select(`
-        id,
-        full_name,
-        email,
-        user_id,
-        user_roles (
-          role
-        )
-      `);
+    try {
+      // Fetch profiles
+      const { data: profiles, error: pError } = await supabase
+        .from("profiles")
+        .select("*");
 
-    if (!error && profiles) {
-      const formatted = profiles.map((p: any) => ({
-        id: p.id,
-        full_name: p.full_name,
-        email: p.email,
-        user_id: p.user_id,
-        role: p.user_roles?.[0]?.role || "officer"
-      }));
+      if (pError) throw pError;
+
+      // Fetch all roles to map them
+      const { data: roles, error: rError } = await supabase
+        .from("user_roles")
+        .select("*");
+
+      if (rError) throw rError;
+
+      const formatted = profiles.map((p: any) => {
+        const userRole = roles.find(r => r.user_id === p.user_id);
+        return {
+          id: p.id,
+          full_name: p.full_name,
+          email: p.email,
+          user_id: p.user_id,
+          role: userRole?.role || "officer"
+        };
+      });
+      
       setPersonnel(formatted);
+    } catch (err: any) {
+      console.error("Error fetching personnel:", err);
+      toast({ 
+        title: "Scanning Error", 
+        description: "Unable to retrieve personnel directory. Check security clearance.", 
+        variant: "destructive" 
+      });
+    } finally {
+      setPersonnelLoading(false);
     }
-    setPersonnelLoading(false);
+  };
+
+  const handleRegisterOfficer = async () => {
+    if (!newOfficerData.email || !newOfficerData.password) {
+      toast({ title: "Clearance Denied", description: "Email and Password are required fields.", variant: "destructive" });
+      return;
+    }
+
+    setIsRegistering(true);
+    try {
+      // In a real app, we'd use a service role or a specific function to create users.
+      // For this ICPC prototype, we simulate successful registration.
+      const { data, error } = await supabase.auth.signUp({
+        email: newOfficerData.email,
+        password: newOfficerData.password,
+        options: {
+          data: {
+            full_name: newOfficerData.full_name,
+          }
+        }
+      });
+
+      if (error) throw error;
+
+      toast({ 
+        title: "Officer Recruited", 
+        description: `${newOfficerData.full_name} has been added to the intelligence network.`,
+        className: "glass-card border-green-500/50 bg-green-500/10"
+      });
+      
+      setRegisterDialogOpen(false);
+      setNewOfficerData({ full_name: "", email: "", password: "" });
+      fetchPersonnel();
+    } catch (err: any) {
+      console.error("Registration error:", err);
+      toast({ title: "Recruitment Failed", description: err.message, variant: "destructive" });
+    } finally {
+      setIsRegistering(false);
+    }
   };
 
   const handleUpdateRole = async (userId: string, currentRole: string) => {
@@ -293,15 +358,72 @@ const Dashboard = () => {
               </p>
             </div>
             
-            <div className="flex items-center gap-3 p-1 glass-card border-white/10 rounded-2xl">
-              <Button variant="ghost" size="sm" className="font-sans gap-2 hover:bg-white/10" onClick={exportCSV}>
-                <FileDown className="h-4 w-4" /> Export
-              </Button>
-              <div className="h-4 w-px bg-white/10" />
-              <Button variant="ghost" size="sm" className="font-sans gap-2 text-destructive hover:bg-destructive/10" onClick={signOut}>
-                <LogOut className="h-4 w-4" /> Sign Out
-              </Button>
-            </div>
+              <div className="flex items-center gap-3 p-1 glass-card border-white/10 rounded-2xl">
+                <Sheet open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="sm" className="relative h-8 w-8 p-0 hover:bg-white/10">
+                      <Bell className="h-4 w-4" />
+                      {notifications.some(n => n.unread) && (
+                        <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-accent rounded-full border-2 border-[#0D1117] animate-pulse" />
+                      )}
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent className="glass-card border-white/10 w-[400px] sm:w-[540px]">
+                    <SheetHeader className="mb-6">
+                      <SheetTitle className="text-xl font-bold flex items-center gap-2">
+                        <Bell className="h-5 w-5 text-accent" /> Intelligence Activity
+                      </SheetTitle>
+                      <SheetDescription className="text-muted-foreground font-sans">
+                        Real-time log of security events and system alerts.
+                      </SheetDescription>
+                    </SheetHeader>
+                    
+                    <div className="space-y-4 overflow-y-auto max-h-[calc(100vh-180px)] custom-scrollbar pr-2">
+                      {notifications.length === 0 ? (
+                        <div className="py-20 text-center flex flex-col items-center gap-3 opacity-40">
+                          <Inbox className="h-10 w-10" />
+                          <p className="text-xs font-bold uppercase tracking-widest">No Recent Intel</p>
+                        </div>
+                      ) : (
+                        notifications.map((n) => (
+                          <div key={n.id} 
+                               className={`p-4 rounded-2xl border transition-all cursor-pointer group ${
+                                 n.unread ? "bg-accent/5 border-accent/20" : "bg-white/5 border-white/5 opacity-70"
+                               }`}
+                               onClick={() => {
+                                 setNotifications(prev => prev.map(notif => notif.id === n.id ? { ...notif, unread: false } : notif));
+                               }}>
+                            <div className="flex items-start justify-between gap-3 mb-1">
+                              <h4 className="text-sm font-bold text-primary group-hover:text-accent transition-colors">{n.title}</h4>
+                              <span className="text-[10px] text-muted-foreground font-mono mt-0.5 whitespace-nowrap">{n.time}</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground font-sans line-clamp-2 mb-2">{n.description}</p>
+                            {n.unread && (
+                              <div className="flex items-center gap-1.5 text-[10px] font-bold text-accent uppercase tracking-tighter">
+                                <div className="h-1 w-1 bg-accent rounded-full" /> New Awareness
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    {notifications.length > 0 && (
+                      <Button variant="ghost" size="sm" className="w-full mt-6 font-sans text-[10px] uppercase font-bold tracking-widest text-muted-foreground hover:text-primary"
+                              onClick={() => setNotifications([])}>
+                        Clear All Logs
+                      </Button>
+                    )}
+                  </SheetContent>
+                </Sheet>
+                <div className="h-4 w-px bg-white/10" />
+                <Button variant="ghost" size="sm" className="font-sans gap-2 hover:bg-white/10" onClick={exportCSV}>
+                  <FileDown className="h-4 w-4" /> Export
+                </Button>
+                <div className="h-4 w-px bg-white/10" />
+                <Button variant="ghost" size="sm" className="font-sans gap-2 text-destructive hover:bg-destructive/10" onClick={signOut}>
+                  <LogOut className="h-4 w-4" /> Sign Out
+                </Button>
+              </div>
           </div>
 
           {/* Navigation Tabs (Admin Only) */}
@@ -510,7 +632,8 @@ const Dashboard = () => {
                   <h2 className="text-2xl font-bold text-primary">Intelligence Personnel</h2>
                   <p className="text-sm text-muted-foreground">Managing security clearance and access levels for all portal officers.</p>
                 </div>
-                <Button className="font-sans gap-2 h-10 px-6 rounded-xl bg-accent text-white shadow-lg shadow-accent/20">
+                <Button className="font-sans gap-2 h-10 px-6 rounded-xl bg-accent text-white shadow-lg shadow-accent/20"
+                        onClick={() => setRegisterDialogOpen(true)}>
                   <UserPlus className="h-4 w-4" /> Register Officer
                 </Button>
               </div>
@@ -533,6 +656,15 @@ const Dashboard = () => {
                             <div className="flex flex-col items-center gap-3 opacity-50">
                               <Loader2 className="h-10 w-10 animate-spin" />
                               <p className="text-[10px] font-bold uppercase tracking-widest">Scanning Personnel DB...</p>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ) : personnel.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={4} className="py-20 text-center">
+                            <div className="flex flex-col items-center gap-3 opacity-30">
+                              <Inbox className="h-10 w-10" />
+                              <p className="text-[10px] font-bold uppercase tracking-widest">Personnel Database is Empty</p>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -697,6 +829,62 @@ const Dashboard = () => {
               )}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+      {/* Personnel Registration Dialog */}
+      <Dialog open={registerDialogOpen} onOpenChange={setRegisterDialogOpen}>
+        <DialogContent className="max-w-md glass-card border-white/20 shadow-2xl rounded-3xl p-0 overflow-hidden">
+          <div className="h-1.5 bg-accent w-full" />
+          <div className="p-8">
+            <DialogHeader className="mb-6">
+              <DialogTitle className="text-2xl font-bold text-primary flex items-center gap-2">
+                <UserPlus className="h-6 w-6 text-accent" /> Recategorize Personnel
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4 font-sans">
+              <div className="space-y-2">
+                <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Full Name / Alias</Label>
+                <Input 
+                  placeholder="Officer name..." 
+                  className="glass-card border-white/10 bg-white/5"
+                  value={newOfficerData.full_name}
+                  onChange={(e) => setNewOfficerData(prev => ({ ...prev, full_name: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Secure Email</Label>
+                <Input 
+                  type="email" 
+                  placeholder="officer@icpc.gov.ng" 
+                  className="glass-card border-white/10 bg-white/5"
+                  value={newOfficerData.email}
+                  onChange={(e) => setNewOfficerData(prev => ({ ...prev, email: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Temporary Passphrase</Label>
+                <Input 
+                  type="password" 
+                  placeholder="••••••••" 
+                  className="glass-card border-white/10 bg-white/5"
+                  value={newOfficerData.password}
+                  onChange={(e) => setNewOfficerData(prev => ({ ...prev, password: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-8">
+              <Button variant="ghost" onClick={() => setRegisterDialogOpen(false)} className="rounded-xl">Cancel</Button>
+              <Button 
+                onClick={handleRegisterOfficer}
+                disabled={isRegistering}
+                className="bg-accent text-white rounded-xl px-8 shadow-lg shadow-accent/20"
+              >
+                {isRegistering ? <Loader2 className="h-4 w-4 animate-spin" /> : "Deploy Officer"}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
