@@ -29,9 +29,6 @@ const Header = () => {
 
   const allLinks = [
     ...navLinks,
-    ...(auth?.user && (auth.role === "admin" || auth.role === "officer")
-      ? [{ label: "Dashboard", href: "/dashboard" }]
-      : [{ label: "Officer Login", href: "/auth" }]),
   ];
 
   return (
