@@ -3,30 +3,23 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, CheckCircle2, Clock, UserCheck, MessageSquare, FolderClosed, Shield, Activity, Calendar, Loader2, AlertCircle } from "lucide-react";
+import { Search, CheckCircle2, Clock, UserCheck, MessageSquare, FolderClosed, Shield, Activity, Calendar, Loader2, AlertCircle, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 
-const statusIcons: Record<string, any> = {
-  submitted: CheckCircle2,
-  under_review: Clock,
-  assigned: UserCheck,
-  responded: MessageSquare,
-  closed: FolderClosed,
-};
+const statusSteps = [
+  { key: "submitted", label: "Registered", note: "The submission has been received and securely registered within our portal.", icon: CheckCircle2 },
+  { key: "under_review", label: "Intelligence Review", note: "Security assessment and data analysis of the report in progress.", icon: Clock },
+  { key: "assigned", label: "Specialist Assigned", note: "Assigned to the relevant investigation department for field evaluation.", icon: UserCheck },
+  { key: "responded", label: "Formal Response", note: "Formal communication regarding investigation findings has been transmitted.", icon: MessageSquare },
+  { key: "closed", label: "Case Finalized", note: "Official case closure and archival within the commission's framework.", icon: FolderClosed },
+];
 
-const statusLabels: Record<string, string> = {
-  submitted: "Case Registered",
-  under_review: "Intelligence Review",
-  assigned: "Specialist Assigned",
-  responded: "Formal Response",
-  closed: "Case Finalized",
-};
+const statusOrder = statusSteps.map(s => s.key);
 
 const TrackComplaint = () => {
   const [refId, setRefId] = useState("");
   const [complaint, setComplaint] = useState<any>(null);
-  const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
@@ -37,7 +30,6 @@ const TrackComplaint = () => {
     setLoading(true);
     setNotFound(false);
     setComplaint(null);
-    setAuditLogs([]);
 
     const { data, error } = await supabase
       .from("complaints")
@@ -45,21 +37,15 @@ const TrackComplaint = () => {
       .eq("tracking_id", refId.trim())
       .maybeSingle();
 
+    setLoading(false);
     if (error || !data) {
-      setLoading(false);
       setNotFound(true);
     } else {
       setComplaint(data);
-      const { data: logs } = await supabase
-        .from("audit_logs")
-        .select("*")
-        .eq("complaint_id", data.id)
-        .order("created_at", { ascending: false });
-      
-      setAuditLogs(logs || []);
-      setLoading(false);
     }
   };
+
+  const currentIndex = complaint ? statusOrder.indexOf(complaint.status) : -1;
 
   return (
     <section id="track" className="py-20 sm:py-24 bg-mesh relative overflow-hidden" aria-labelledby="track-title">
@@ -68,10 +54,10 @@ const TrackComplaint = () => {
         <div className="text-center mb-16 animate-reveal">
           <Badge variant="outline" className="mb-4 border-primary/20 bg-primary/5 text-primary tracking-widest uppercase text-[10px] py-1 px-4">Tracker Intelligence</Badge>
           <h2 id="track-title" className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Verify Submission Status
+            Verify Submission Progress
           </h2>
           <p className="text-muted-foreground font-sans max-w-xl mx-auto">
-            Utilize your unique digital tracking reference to synchronize with our secure investigative activity logs.
+            Utilize your unique digital tracking reference to synchronize with the official investigative milestone path.
           </p>
         </div>
 
@@ -92,9 +78,9 @@ const TrackComplaint = () => {
                   />
                 </div>
               </div>
-              <Button type="submit" className="md:mt-7 h-14 px-10 font-sans gap-2 bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 text-md font-bold" disabled={loading}>
+              <Button type="submit" className="md:mt-7 h-14 px-10 font-sans gap-2 bg-primary hover:bg-primary/90 text-white shadow-xl shadow-primary/20 text-md font-bold transition-all active:scale-95" disabled={loading}>
                 {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Search className="h-5 w-5" />}
-                {loading ? "Authenticating..." : "Fetch Activity Log"}
+                {loading ? "Authenticating..." : "Fetch Progress Path"}
               </Button>
             </form>
 
@@ -119,10 +105,13 @@ const TrackComplaint = () => {
                           <p className="text-lg font-mono font-bold text-foreground">{complaint.tracking_id}</p>
                        </div>
                        <div>
-                          <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-sans">Current Stage</p>
-                          <Badge className="bg-primary text-white mt-1 uppercase text-[10px] font-bold tracking-widest px-3">
-                             {statusLabels[complaint.status] || complaint.status}
-                          </Badge>
+                          <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-sans">Current Phase</p>
+                          <div className="flex items-center gap-2 mt-1">
+                             <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                             <Badge className="bg-primary text-white uppercase text-[10px] font-bold tracking-widest px-3">
+                                {statusSteps[currentIndex]?.label || complaint.status}
+                             </Badge>
+                          </div>
                        </div>
                     </div>
                  </CardContent>
@@ -131,62 +120,52 @@ const TrackComplaint = () => {
 
             <div className="lg:col-span-8 space-y-6">
               <div className="flex items-center gap-2 px-1 animate-reveal stagger-2">
-                <Activity className="h-4 w-4 text-primary" />
-                <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground font-sans">Activity Timeline</h3>
+                <CheckCircle className="h-4 w-4 text-primary" />
+                <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground font-sans">Milestone Progress Path</h3>
               </div>
               
-              <div className="relative space-y-4 pl-4 before:absolute before:left-0 before:top-2 before:bottom-2 before:w-px before:bg-gradient-to-b before:from-primary/40 before:via-primary/10 before:to-transparent">
-                {auditLogs.length > 0 ? (
-                  auditLogs.map((log, i) => {
-                    const Icon = statusIcons[log.new_status] || Activity;
-                    const isLatest = i === 0;
-                    return (
-                      <div key={log.id} className={`relative animate-reveal stagger-${Math.min(i + 3, 6)}`}>
-                        <div className={`absolute -left-[20px] top-1 w-2.5 h-2.5 rounded-full ring-4 ring-background shadow-sm ${
-                          isLatest ? "bg-primary animate-pulse" : "bg-muted"
-                        }`} />
-                        <div className={`glass-card p-6 border-white/5 transition-all duration-300 hover:border-primary/20 group ${
-                          isLatest ? "bg-primary/5 border-primary/10 scale-[1.02]" : "bg-white/5"
-                        }`}>
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center gap-3">
-                              <div className={`p-2 rounded-lg ${isLatest ? 'bg-primary/20 text-primary' : 'bg-white/5 text-muted-foreground'}`}>
-                                <Icon className="h-5 w-5" />
-                              </div>
-                              <p className={`text-sm font-bold font-sans ${isLatest ? "text-primary text-lg" : "text-foreground"}`}>
-                                {statusLabels[log.new_status] || "Status Update"}
-                              </p>
+              <div className="relative space-y-3 pl-4 before:absolute before:left-0 before:top-4 before:bottom-4 before:w-px before:bg-gradient-to-b before:from-primary/40 before:via-primary/10 before:to-transparent">
+                {statusSteps.map((step, i) => {
+                  const isCompleted = i < currentIndex;
+                  const isCurrent = i === currentIndex;
+                  const Icon = step.icon;
+
+                  return (
+                    <div key={step.key} className={`relative animate-reveal stagger-${i + 3}`}>
+                      <div className={`absolute -left-[20px] top-4 w-2.5 h-2.5 rounded-full ring-4 ring-background shadow-sm transition-all duration-500 ${
+                        isCompleted ? "bg-primary" : 
+                        isCurrent ? "bg-primary animate-pulse h-3 w-3 -left-[21px]" : 
+                        "bg-muted"
+                      }`} />
+                      
+                      <div className={`glass-card p-6 border-white/5 transition-all duration-300 ${
+                        isCurrent ? "bg-primary/5 border-primary/20 scale-[1.02] shadow-xl shadow-primary/5" : 
+                        isCompleted ? "bg-white/5 opacity-80" : 
+                        "bg-transparent opacity-40 grayscale"
+                      }`}>
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-lg ${isCurrent ? 'bg-primary/20 text-primary' : isCompleted ? 'bg-primary/10 text-primary/70' : 'bg-white/5 text-muted-foreground'}`}>
+                              <Icon className="h-5 w-5" />
                             </div>
-                            <div className="flex items-center gap-2 text-[11px] font-bold text-muted-foreground opacity-60 font-sans tracking-wide">
-                              <Calendar className="h-3.5 w-3.5" />
-                              {new Date(log.created_at).toLocaleDateString(undefined, {
-                                month: 'short', day: 'numeric', year: 'numeric'
-                              })}
-                            </div>
-                          </div>
-                          {log.notes && (
-                            <p className="text-sm text-muted-foreground/80 font-sans leading-relaxed pl-10 italic border-l border-white/5">
-                              "{log.notes}"
+                            <p className={`text-sm font-bold font-sans ${isCurrent ? "text-primary text-lg" : "text-foreground"}`}>
+                              {step.label}
                             </p>
+                          </div>
+                          {isCompleted && (
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold text-primary opacity-60 font-sans bg-primary/10 px-2 py-0.5 rounded-full">
+                              <CheckCircle2 className="h-3 w-3" />
+                              COMPLETE
+                            </div>
                           )}
                         </div>
+                        <p className={`text-sm font-sans leading-relaxed pl-10 ${isCurrent ? "text-muted-foreground" : "text-muted-foreground/60"}`}>
+                          {step.note}
+                        </p>
                       </div>
-                    );
-                  })
-                ) : (
-                  <div className="relative animate-reveal stagger-3">
-                    <div className="absolute -left-[20px] top-1 w-2.5 h-2.5 rounded-full ring-4 ring-background bg-primary" />
-                    <div className="glass-card p-6 bg-primary/5 border-primary/10">
-                      <div className="flex items-center gap-3 mb-2">
-                        <CheckCircle2 className="h-5 w-5 text-primary" />
-                        <p className="text-md font-bold font-sans text-primary">Case Registered</p>
-                      </div>
-                      <p className="text-sm text-muted-foreground/80 font-sans pl-8">
-                        The submission has been received and securely registered within our portal's investigative framework.
-                      </p>
                     </div>
-                  </div>
-                )}
+                  );
+                })}
               </div>
             </div>
           </div>
