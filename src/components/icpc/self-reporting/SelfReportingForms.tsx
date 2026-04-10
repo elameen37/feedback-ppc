@@ -18,17 +18,17 @@ const SelfReportingForms = () => {
           </p>
         </div>
 
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="glass-card border-white/5 animate-reveal stagger-1">
+          <CardContent className="pt-8">
             <Tabs defaultValue="public-officer" className="w-full">
-              <TabsList className="w-full grid grid-cols-3 mb-6 h-auto">
-                <TabsTrigger value="public-officer" className="font-sans text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-3">
+              <TabsList className="w-full grid grid-cols-3 mb-8 h-auto p-1.5 bg-muted/50 rounded-xl">
+                <TabsTrigger value="public-officer" className="font-sans text-[10px] sm:text-xs md:text-sm py-3 px-1 sm:px-3 rounded-lg data-[state=active]:shadow-lg">
                   Public Officer
                 </TabsTrigger>
-                <TabsTrigger value="individual" className="font-sans text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-3">
+                <TabsTrigger value="individual" className="font-sans text-[10px] sm:text-xs md:text-sm py-3 px-1 sm:px-3 rounded-lg data-[state=active]:shadow-lg">
                   Individual
                 </TabsTrigger>
-                <TabsTrigger value="organizational" className="font-sans text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-3">
+                <TabsTrigger value="organizational" className="font-sans text-[10px] sm:text-xs md:text-sm py-3 px-1 sm:px-3 rounded-lg data-[state=active]:shadow-lg">
                   Organizational
                 </TabsTrigger>
               </TabsList>
