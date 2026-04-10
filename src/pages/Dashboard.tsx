@@ -80,12 +80,17 @@ const Dashboard = () => {
   useEffect(() => {
     if (user) {
       fetchComplaints();
+    }
+  }, [user, currentPage, filterStatus, filterCategory, searchQuery]);
+
+  useEffect(() => {
+    if (user) {
       const channel = subscribeToNewComplaints();
       return () => {
         supabase.removeChannel(channel);
       };
     }
-  }, [user, currentPage, filterStatus, filterCategory, searchQuery]);
+  }, [user]);
 
   const playNotificationSound = () => {
     const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
@@ -95,7 +100,7 @@ const Dashboard = () => {
 
   const subscribeToNewComplaints = () => {
     const channel = supabase
-      .channel('schema-db-changes')
+      .channel(`reports-sync-${Date.now()}`)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'complaints' },
@@ -283,11 +288,10 @@ const Dashboard = () => {
 
   const handleReconnect = () => {
     setRealtimeStatus("connecting");
-    const channel = subscribeToNewComplaints();
-    toast({ title: "Intelligence Link Reset", description: "Signal re-established with central repository." });
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    supabase.removeAllChannels().then(() => {
+      subscribeToNewComplaints();
+      toast({ title: "Intelligence Link Reset", description: "Signal re-established with central repository." });
+    });
   };
 
   useEffect(() => {
