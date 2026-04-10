@@ -15,7 +15,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger, SheetDescription } from "@/components/ui/sheet";
-import { LogOut, Search, FileDown, Filter, Clock, Eye, Activity, CheckCircle2, AlertCircle, Inbox, TrendingUp, Shield, ChevronLeft, ChevronRight, Bell, Users, ShieldCheck, UserPlus, Settings2, Loader2, Check } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { LogOut, Search, FileDown, Filter, Clock, Eye, Activity, CheckCircle2, AlertCircle, Inbox, TrendingUp, Shield, ChevronLeft, ChevronRight, Bell, Users, ShieldCheck, UserPlus, Settings2, Loader2, Check, MoreVertical, Ban } from "lucide-react";
 import type { Tables, Database } from "@/integrations/supabase/types";
 import { sendNotification } from "@/lib/notifications";
 
@@ -44,7 +45,7 @@ const categoryLabels: Record<string, string> = {
 };
 
 const Dashboard = () => {
-  const { user, role, loading: authLoading, signOut } = useAuth();
+  const { user, role, status, statusReason, loading: authLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const [complaints, setComplaints] = useState<Complaint[]>([]);
   const [loading, setLoading] = useState(true);
@@ -54,6 +55,9 @@ const Dashboard = () => {
   const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
   const [newStatus, setNewStatus] = useState("");
+  const [deactivateUserId, setDeactivateUserId] = useState<string | null>(null);
+  const [deactivateReason, setDeactivateReason] = useState("");
+  const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -201,7 +205,9 @@ const Dashboard = () => {
           full_name: p.full_name,
           email: p.email,
           user_id: p.user_id,
-          role: userRole?.role || "pending"
+          role: userRole?.role || "pending",
+          status: userRole?.status || "inactive",
+          status_reason: userRole?.status_reason || null
         };
       });
       
@@ -260,12 +266,44 @@ const Dashboard = () => {
   const handleApprovePersonnel = async (userId: string) => {
     const { error } = await supabase
       .from("user_roles")
-      .insert({ user_id: userId, role: "officer" });
+      .insert({ user_id: userId, role: "officer", status: "active" });
 
     if (error) {
       toast({ title: "Approval Failed", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Personnel Approved", description: "Clearance upgraded to Officer level." });
+      fetchPersonnel();
+    }
+  };
+
+  const handleDeactivatePersonnel = async () => {
+    if (!deactivateUserId) return;
+    const { error } = await supabase
+      .from("user_roles")
+      .update({ status: "inactive", status_reason: deactivateReason })
+      .eq("user_id", deactivateUserId);
+
+    if (error) {
+      toast({ title: "Deactivation Failed", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Access Revoked", description: "Personnel access has been suspended." });
+      setDeactivateDialogOpen(false);
+      setDeactivateUserId(null);
+      setDeactivateReason("");
+      fetchPersonnel();
+    }
+  };
+
+  const handleRestorePersonnel = async (userId: string) => {
+    const { error } = await supabase
+      .from("user_roles")
+      .update({ status: "active", status_reason: null })
+      .eq("user_id", userId);
+
+    if (error) {
+      toast({ title: "Restoration Failed", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Access Restored", description: "Personnel clearance is now active." });
       fetchPersonnel();
     }
   };
@@ -369,7 +407,7 @@ const Dashboard = () => {
     );
   }
 
-  if (user && role === null) {
+  if (user && (role === null || status === "inactive")) {
     return (
       <div className="min-h-screen flex flex-col bg-mesh">
         <Header />
@@ -377,19 +415,31 @@ const Dashboard = () => {
           <div className="absolute inset-0 bg-grid-white/[0.02] -z-10 pointer-events-none" />
           <Card className="glass-card max-w-lg w-full border-white/10 shadow-2xl animate-reveal">
             <CardHeader className="text-center pb-2">
-              <div className="mx-auto w-16 h-16 bg-yellow-500/10 rounded-2xl flex items-center justify-center mb-6">
-                <ShieldCheck className="h-8 w-8 text-yellow-500" />
+              <div className={`mx-auto w-16 h-16 rounded-2xl flex items-center justify-center mb-6 ${status === "inactive" ? "bg-red-500/10" : "bg-yellow-500/10"}`}>
+                {status === "inactive" ? <AlertCircle className="h-8 w-8 text-red-500" /> : <ShieldCheck className="h-8 w-8 text-yellow-500" />}
               </div>
-              <CardTitle className="text-2xl font-bold text-primary">Pending Clearance</CardTitle>
+              <CardTitle className="text-2xl font-bold text-primary">
+                {status === "inactive" ? "Clearance Suspended" : "Pending Clearance"}
+              </CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-6">
               <p className="text-muted-foreground font-sans">
-                Your registration has been securely logged. Access to the intelligence dashboard requires 
-                administrative approval. Please wait for an administrator to authorize your clearance.
+                {status === "inactive" 
+                  ? "Your intelligence access has been temporarily revoked or suspended by an Administrator."
+                  : "Your registration has been securely logged. Access to the intelligence dashboard requires administrative approval. Please wait for an administrator to authorize your clearance."}
               </p>
-              <div className="p-4 rounded-xl bg-black/5 border border-white/5 flex items-center justify-center gap-3">
-                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Status: Awaiting Verification</span>
+              <div className={`p-4 rounded-xl bg-black/5 border flex items-center justify-center gap-3 ${status === "inactive" ? "border-red-500/20" : "border-white/5"}`}>
+                {status === "inactive" ? (
+                  <div className="flex flex-col items-center">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-red-500 mb-1">Status: Inactive</span>
+                    <span className="text-xs text-muted-foreground font-mono font-medium">{statusReason || "No explicit reason provided."}</span>
+                  </div>
+                ) : (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Status: Awaiting Verification</span>
+                  </>
+                )}
               </div>
               <Button onClick={() => signOut()} variant="outline" className="w-full font-sans border-white/10">
                 <LogOut className="mr-2 h-4 w-4" /> Sign Out
@@ -777,15 +827,22 @@ const Dashboard = () => {
                           </TableCell>
                           <TableCell className="font-mono text-xs opacity-70">{p.email || "N/A"}</TableCell>
                           <TableCell className="text-center">
-                            <Badge variant="outline" className={`text-[10px] font-bold uppercase tracking-[0.2em] py-1 px-4 border-white/10 ${
-                              p.role === "admin" 
-                                ? "bg-green-500/10 text-green-500 border-green-500/20" 
-                                : p.role === "pending"
-                                  ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
-                                  : "bg-primary/10 text-primary border-primary/20"
-                            }`}>
-                              {p.role}
-                            </Badge>
+                            <div className="flex items-center justify-center gap-2">
+                              {p.status === "inactive" && (
+                                <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-[0.2em] py-1 px-3 border-red-500/20 bg-red-500/10 text-red-500">
+                                  Inactive
+                                </Badge>
+                              )}
+                              <Badge variant="outline" className={`text-[10px] font-bold uppercase tracking-[0.2em] py-1 px-4 border-white/10 ${
+                                p.role === "admin" 
+                                  ? "bg-green-500/10 text-green-500 border-green-500/20" 
+                                  : p.role === "pending"
+                                    ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
+                                    : "bg-primary/10 text-primary border-primary/20"
+                              }`}>
+                                {p.role}
+                              </Badge>
+                            </div>
                           </TableCell>
                           <TableCell className="text-right px-6">
                             {p.role === "pending" ? (
@@ -799,18 +856,35 @@ const Dashboard = () => {
                                 Approve Access
                               </Button>
                             ) : (
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                disabled={p.user_id === user?.id}
-                                onClick={() => handleUpdateRole(p.user_id, p.role)}
-                                className={`font-sans text-[10px] font-bold gap-2 px-4 rounded-full transition-all ${
-                                  p.role === "admin" ? "hover:bg-primary/10 text-primary" : "hover:bg-accent/10 text-accent"
-                                }`}
-                              >
-                                <Settings2 className="h-3.5 w-3.5" />
-                                {p.role === "admin" ? "Downgrade Access" : "Elevate Access"}
-                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm" disabled={p.user_id === user?.id} className="h-8 w-8 p-0 rounded-full hover:bg-white/10">
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="glass-card border-white/10 min-w-[180px]">
+                                  <DropdownMenuLabel className="font-sans text-[10px] uppercase tracking-widest text-muted-foreground flex items-center justify-between">
+                                    Actions {p.status === 'inactive' && <span className="text-red-500 flex items-center gap-1 ml-2"><Ban className="h-3 w-3" /> susp.</span>}
+                                  </DropdownMenuLabel>
+                                  <DropdownMenuSeparator className="bg-white/5" />
+                                  <DropdownMenuItem className="font-sans text-xs cursor-pointer focus:bg-white/5" onClick={() => handleUpdateRole(p.user_id, p.role)}>
+                                    <Settings2 className="mr-2 h-4 w-4 text-primary" />
+                                    {p.role === "admin" ? "Downgrade to Officer" : "Elevate to Admin"}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator className="bg-white/5" />
+                                  {p.status === "active" ? (
+                                    <DropdownMenuItem className="font-sans text-xs cursor-pointer text-red-500 focus:bg-red-500/10 focus:text-red-500" onClick={() => { setDeactivateUserId(p.user_id); setDeactivateDialogOpen(true); }}>
+                                      <Ban className="mr-2 h-4 w-4" />
+                                      Deactivate Access
+                                    </DropdownMenuItem>
+                                  ) : (
+                                    <DropdownMenuItem className="font-sans text-xs cursor-pointer text-green-500 focus:bg-green-500/10 focus:text-green-500" onClick={() => handleRestorePersonnel(p.user_id)}>
+                                      <ShieldCheck className="mr-2 h-4 w-4" />
+                                      Restore Access
+                                    </DropdownMenuItem>
+                                  )}
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             )}
                           </TableCell>
                         </TableRow>
@@ -995,6 +1069,42 @@ const Dashboard = () => {
                 className="bg-accent text-white rounded-xl px-8 shadow-lg shadow-accent/20"
               >
                 {isRegistering ? <Loader2 className="h-4 w-4 animate-spin" /> : "Deploy Officer"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      {/* Deactivate Personnel Dialog */}
+      <Dialog open={deactivateDialogOpen} onOpenChange={setDeactivateDialogOpen}>
+        <DialogContent className="max-w-md glass-card border-red-500/20 shadow-2xl rounded-3xl p-0 overflow-hidden">
+          <div className="h-1.5 bg-red-500 w-full" />
+          <div className="p-8">
+            <DialogHeader className="mb-6">
+              <DialogTitle className="text-2xl font-bold text-red-500 flex items-center gap-2">
+                <Ban className="h-6 w-6" /> Suspend Personnel
+              </DialogTitle>
+              <DialogDescription className="text-muted-foreground font-sans text-sm">
+                Revoking access blocks this individual from data queries contextually. Provide a reason for the audit trail.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-2 font-sans">
+              <Label className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Reason for Suspension (e.g. Leave, Training)</Label>
+              <Input 
+                placeholder="Ex: Annual Leave, Disciplinary Review, External Training..." 
+                className="glass-card border-white/10 bg-white/5"
+                value={deactivateReason}
+                onChange={(e) => setDeactivateReason(e.target.value)}
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 mt-8">
+              <Button variant="ghost" onClick={() => setDeactivateDialogOpen(false)} className="rounded-xl">Cancel</Button>
+              <Button 
+                onClick={handleDeactivatePersonnel}
+                className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border-red-500/20 rounded-xl px-8 transition-colors"
+              >
+                Confirm Suspension
               </Button>
             </div>
           </div>

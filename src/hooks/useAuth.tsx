@@ -7,6 +7,8 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   role: "admin" | "officer" | null;
+  status: "active" | "inactive" | null;
+  statusReason: string | null;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -19,14 +21,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState<"admin" | "officer" | null>(null);
+  const [status, setStatus] = useState<"active" | "inactive" | null>(null);
+  const [statusReason, setStatusReason] = useState<string | null>(null);
 
   const fetchRole = async (userId: string) => {
     const { data } = await supabase
       .from("user_roles")
-      .select("role")
+      .select("role, status, status_reason")
       .eq("user_id", userId)
       .maybeSingle();
     setRole(data?.role ?? null);
+    setStatus((data?.status as "active" | "inactive") ?? null);
+    setStatusReason(data?.status_reason ?? null);
   };
 
   useEffect(() => {
@@ -39,6 +45,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setTimeout(() => fetchRole(session.user.id), 0);
         } else {
           setRole(null);
+          setStatus(null);
+          setStatusReason(null);
         }
         setLoading(false);
       }
@@ -78,7 +86,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, role, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, role, status, statusReason, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );
