@@ -14,8 +14,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { LogOut, Search, FileDown, Filter, Clock, Eye, Activity, CheckCircle2, AlertCircle, Inbox, TrendingUp, Shield, ChevronLeft, ChevronRight, Bell } from "lucide-react";
-import type { Tables } from "@/integrations/supabase/types";
+import { LogOut, Search, FileDown, Filter, Clock, Eye, Activity, CheckCircle2, AlertCircle, Inbox, TrendingUp, Shield, ChevronLeft, ChevronRight, Bell, Users, ShieldCheck, UserPlus, Settings2 } from "lucide-react";
+import type { Tables, Database } from "@/integrations/supabase/types";
 import { sendNotification } from "@/lib/notifications";
 
 type Complaint = Tables<"complaints">;
@@ -58,6 +58,11 @@ const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
+
+  // Management State
+  const [activeTab, setActiveTab] = useState<"reports" | "personnel">("reports");
+  const [personnel, setPersonnel] = useState<any[]>([]);
+  const [personnelLoading, setPersonnelLoading] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -142,6 +147,58 @@ const Dashboard = () => {
     setNewStatus(complaint.status);
     fetchAuditLogs(complaint.id);
   };
+
+  const fetchPersonnel = async () => {
+    if (role !== "admin") return;
+    setPersonnelLoading(true);
+    
+    // Fetch profiles and join with user_roles
+    const { data: profiles, error } = await supabase
+      .from("profiles")
+      .select(`
+        id,
+        full_name,
+        email,
+        user_id,
+        user_roles (
+          role
+        )
+      `);
+
+    if (!error && profiles) {
+      const formatted = profiles.map((p: any) => ({
+        id: p.id,
+        full_name: p.full_name,
+        email: p.email,
+        user_id: p.user_id,
+        role: p.user_roles?.[0]?.role || "officer"
+      }));
+      setPersonnel(formatted);
+    }
+    setPersonnelLoading(false);
+  };
+
+  const handleUpdateRole = async (userId: string, currentRole: string) => {
+    const newRole = currentRole === "admin" ? "officer" : "admin";
+    
+    const { error } = await supabase
+      .from("user_roles")
+      .update({ role: newRole as "admin" | "officer" })
+      .eq("user_id", userId);
+
+    if (error) {
+      toast({ title: "Update Failed", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Role Updated", description: `Access elevated to ${newRole.toUpperCase()}.` });
+      fetchPersonnel();
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "personnel") {
+      fetchPersonnel();
+    }
+  }, [activeTab]);
 
   const handleUpdateStatus = async () => {
     if (!selectedComplaint || newStatus === selectedComplaint.status) return;
@@ -247,177 +304,278 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Stats Bento Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-10">
-            {/* Total Reports - Large Feature Card */}
-            <Card className="md:col-span-2 lg:col-span-2 glass-card border-white/10 overflow-hidden relative group animate-reveal stagger-1">
-              <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-                <TrendingUp className="h-24 w-24 text-accent" />
-              </div>
-              <CardContent className="pt-8 pb-6 bg-gradient-to-br from-primary/5 to-accent/5">
-                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">Total Traffic</p>
-                <p className="text-5xl font-black text-primary mb-2 tracking-tighter">{complaints.length}</p>
-                <div className="flex items-center gap-2 text-xs font-sans text-green-600 font-bold">
-                  <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
-                  +12% from last month
-                </div>
-              </CardContent>
-            </Card>
+          {/* Navigation Tabs (Admin Only) */}
+          {role === "admin" && (
+            <div className="flex items-center gap-1 p-1 bg-black/20 backdrop-blur-md rounded-2xl w-fit mb-8 animate-reveal">
+              <Button 
+                variant={activeTab === "reports" ? "default" : "ghost"}
+                onClick={() => setActiveTab("reports")}
+                className={`flex items-center gap-2 rounded-xl transition-all font-sans font-bold h-10 ${
+                  activeTab === "reports" ? "bg-primary text-white shadow-lg" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Activity className="h-4 w-4" /> Intelligence Reports
+              </Button>
+              <Button 
+                variant={activeTab === "personnel" ? "default" : "ghost"}
+                onClick={() => setActiveTab("personnel")}
+                className={`flex items-center gap-2 rounded-xl transition-all font-sans font-bold h-10 ${
+                  activeTab === "personnel" ? "bg-accent text-white shadow-lg shadow-accent/20" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Users className="h-4 w-4" /> Personnel Management
+              </Button>
+            </div>
+          )}
 
-            {/* Quick Stats - Grid */}
-            {[
-              { label: "Pending", val: "submitted", icon: Inbox, color: "text-blue-500", bg: "bg-blue-500/10" },
-              { label: "Reviewing", val: "under_review", icon: Clock, color: "text-yellow-500", bg: "bg-yellow-500/10" },
-              { label: "Assigned", val: "assigned", icon: Activity, color: "text-purple-500", bg: "bg-purple-500/10" },
-              { label: "Resolved", val: "responded", icon: CheckCircle2, color: "text-green-500", bg: "bg-green-500/10" }
-            ].map((s, idx) => (
-              <Card key={s.val} 
-                    className={`glass-card border-white/10 cursor-pointer hover:border-accent/30 transition-all group animate-reveal stagger-${idx+2}`}
-                    onClick={() => setFilterStatus(s.val === filterStatus ? "all" : s.val)}>
-                <CardContent className="pt-6 pb-4 text-center">
-                  <div className={`mx-auto h-10 w-10 rounded-xl ${s.bg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                    <s.icon className={`h-5 w-5 ${s.color}`} />
+          {activeTab === "reports" ? (
+            <>
+              {/* Stats Bento Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-10">
+                {/* Total Reports - Large Feature Card */}
+                <Card className="md:col-span-2 lg:col-span-2 glass-card border-white/10 overflow-hidden relative group animate-reveal stagger-1">
+                  <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                    <TrendingUp className="h-24 w-24 text-accent" />
                   </div>
-                  <p className="text-xl font-bold text-primary group-hover:text-accent transition-colors">
-                    {complaints.filter(c => c.status === s.val).length}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground font-sans font-bold uppercase tracking-wider">{s.label}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  <CardContent className="pt-8 pb-6 bg-gradient-to-br from-primary/5 to-accent/5">
+                    <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-1">Total Traffic</p>
+                    <p className="text-5xl font-black text-primary mb-2 tracking-tighter">{totalCount}</p>
+                    <div className="flex items-center gap-2 text-xs font-sans text-green-600 font-bold">
+                      <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                      +12% from last month
+                    </div>
+                  </CardContent>
+                </Card>
 
-          {/* Controls & Table Container */}
-          <div className="glass-card border-white/10 rounded-3xl overflow-hidden shadow-2xl animate-reveal stagger-4">
-            {/* Table Controls */}
-            <div className="p-6 border-b border-white/5 bg-white/5 flex flex-col lg:flex-row gap-4">
-              <div className="relative flex-1 group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-accent transition-colors" />
-                <Input placeholder="Filter by Intel ID (e.g. ICPC-2026)..." 
-                       className="pl-11 h-12 bg-black/10 border-white/5 rounded-xl font-sans text-sm focus-visible:ring-accent"
-                       value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }} />
+                {/* Quick Stats - Grid */}
+                {[
+                  { label: "Pending", val: "submitted", icon: Inbox, color: "text-blue-500", bg: "bg-blue-500/10" },
+                  { label: "Reviewing", val: "under_review", icon: Clock, color: "text-yellow-500", bg: "bg-yellow-500/10" },
+                  { label: "Assigned", val: "assigned", icon: Activity, color: "text-purple-500", bg: "bg-purple-500/10" },
+                  { label: "Resolved", val: "responded", icon: CheckCircle2, color: "text-green-500", bg: "bg-green-500/10" }
+                ].map((s, idx) => (
+                  <Card key={s.val} 
+                        className={`glass-card border-white/10 cursor-pointer hover:border-accent/30 transition-all group animate-reveal stagger-${idx+2}`}
+                        onClick={() => setFilterStatus(s.val === filterStatus ? "all" : s.val)}>
+                    <CardContent className="pt-6 pb-4 text-center">
+                      <div className={`mx-auto h-10 w-10 rounded-xl ${s.bg} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                        <s.icon className={`h-5 w-5 ${s.color}`} />
+                      </div>
+                      <p className="text-xl font-bold text-primary group-hover:text-accent transition-colors">
+                        {complaints.filter(c => c.status === s.val).length}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground font-sans font-bold uppercase tracking-wider">{s.label}</p>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-              <div className="flex gap-3">
-                <Select value={filterCategory} onValueChange={val => { setFilterCategory(val); setCurrentPage(1); }}>
-                  <SelectTrigger className="w-full lg:w-56 h-12 bg-black/10 border-white/5 rounded-xl font-sans text-sm">
-                    <Filter className="h-4 w-4 mr-2" />
-                    <SelectValue placeholder="All Categories" />
-                  </SelectTrigger>
-                  <SelectContent className="glass-card border-white/10">
-                    <SelectItem value="all">All Categories</SelectItem>
-                    {Object.entries(categoryLabels).map(([k, v]) => (
-                      <SelectItem key={k} value={k}>{v}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
 
-            {/* Main Data Table */}
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader className="bg-black/20 backdrop-blur-md">
-                  <TableRow className="border-white/5 hover:bg-transparent">
-                    <TableHead className="font-sans uppercase text-[10px] font-bold tracking-widest py-5">Intel ID</TableHead>
-                    <TableHead className="font-sans uppercase text-[10px] font-bold tracking-widest py-5">Category</TableHead>
-                    <TableHead className="font-sans uppercase text-[10px] font-bold tracking-widest py-5 text-center">Security Status</TableHead>
-                    <TableHead className="font-sans uppercase text-[10px] font-bold tracking-widest py-5">Source</TableHead>
-                    <TableHead className="font-sans uppercase text-[10px] font-bold tracking-widest py-5 text-center">Priority / SLA</TableHead>
-                    <TableHead className="font-sans uppercase text-[10px] font-bold tracking-widest py-5 text-right px-6">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {complaints.length === 0 ? (
-                    <TableRow className="border-white/5">
-                      <TableCell colSpan={6} className="text-center py-20 text-muted-foreground font-sans">
-                        <div className="flex flex-col items-center gap-2 opacity-50">
-                          <Inbox className="h-12 w-12" />
-                          <p className="font-medium">No archived records match your current filters.</p>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ) : complaints.map(c => {
-                    const sla = getSLAWarning(c);
-                    return (
-                      <TableRow key={c.id} className="border-white/5 hover:bg-white/5 transition-colors group animate-reveal">
-                        <TableCell className="font-mono text-xs font-bold text-primary group-hover:text-accent transition-colors">{c.tracking_id}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-col">
-                            <span className="text-sm font-sans font-medium text-foreground">{categoryLabels[c.category] ?? c.category}</span>
-                            <span className="text-[10px] text-muted-foreground uppercase tracking-tighter">{new Date(c.created_at).toLocaleDateString()}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Badge variant="outline" className={`text-[10px] font-bold uppercase tracking-widest py-1 px-3 border-white/10 ${statusColors[c.status] ?? ""}`}>
-                            {c.status.replace("_", " ")}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm font-sans text-muted-foreground capitalize">{c.submission_type}</TableCell>
-                        <TableCell className="text-center">
-                          {sla ? (
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-destructive/10 text-destructive text-[10px] font-bold uppercase tracking-tighter animate-pulse">
-                              <AlertCircle className="h-3 w-3" /> Overdue
-                            </div>
-                          ) : (
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 text-green-600 text-[10px] font-bold uppercase tracking-tighter">
-                              <Shield className="h-3 w-3" /> Secure
-                            </div>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-right px-6">
-                          <Button variant="ghost" size="sm" 
-                                  className="h-8 w-8 rounded-full p-0 hover:bg-accent/10 hover:text-accent transition-all" 
-                                  onClick={() => handleViewComplaint(c)}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-
-            {/* Pagination Controls */}
-            <div className="p-6 border-t border-white/5 bg-black/10 flex items-center justify-between">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground font-sans">
-                Showing <span className="text-foreground">{Math.min(complaints.length, pageSize)}</span> of <span className="text-foreground">{totalCount}</span> Intelligence Reports
-              </p>
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                  className="glass-card border-white/10 h-8 w-8 p-0"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <div className="flex items-center gap-1">
-                  {Array.from({ length: Math.ceil(totalCount / pageSize) }).map((_, i) => (
-                    <Button 
-                      key={i}
-                      variant={currentPage === i + 1 ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(i + 1)}
-                      className={`h-8 w-8 p-0 text-[10px] font-bold font-sans ${currentPage === i + 1 ? 'bg-primary text-white shadow-lg' : 'glass-card border-white/10'}`}
-                    >
-                      {i + 1}
-                    </Button>
-                  )).slice(Math.max(0, currentPage - 3), Math.min(Math.ceil(totalCount / pageSize), currentPage + 2))}
+              {/* Controls & Table Container */}
+              <div className="glass-card border-white/10 rounded-3xl overflow-hidden shadow-2xl animate-reveal stagger-4">
+                {/* Table Controls */}
+                <div className="p-6 border-b border-white/5 bg-white/5 flex flex-col lg:flex-row gap-4">
+                  <div className="relative flex-1 group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-accent transition-colors" />
+                    <Input placeholder="Filter by Intel ID (e.g. ICPC-2026)..." 
+                           className="pl-11 h-12 bg-black/10 border-white/5 rounded-xl font-sans text-sm focus-visible:ring-accent"
+                           value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }} />
+                  </div>
+                  <div className="flex gap-3">
+                    <Select value={filterCategory} onValueChange={val => { setFilterCategory(val); setCurrentPage(1); }}>
+                      <SelectTrigger className="w-full lg:w-56 h-12 bg-black/10 border-white/5 rounded-xl font-sans text-sm">
+                        <Filter className="h-4 w-4 mr-2" />
+                        <SelectValue placeholder="All Categories" />
+                      </SelectTrigger>
+                      <SelectContent className="glass-card border-white/10">
+                        <SelectItem value="all">All Categories</SelectItem>
+                        {Object.entries(categoryLabels).map(([k, v]) => (
+                          <SelectItem key={k} value={k}>{v}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  disabled={currentPage >= Math.ceil(totalCount / pageSize)}
-                  onClick={() => setCurrentPage(prev => prev + 1)}
-                  className="glass-card border-white/10 h-8 w-8 p-0"
-                >
-                  <ChevronRight className="h-4 w-4" />
+
+                {/* Main Data Table */}
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader className="bg-black/20 backdrop-blur-md">
+                      <TableRow className="border-white/5 hover:bg-transparent">
+                        <TableHead className="font-sans uppercase text-[10px] font-bold tracking-widest py-5">Intel ID</TableHead>
+                        <TableHead className="font-sans uppercase text-[10px] font-bold tracking-widest py-5">Category</TableHead>
+                        <TableHead className="font-sans uppercase text-[10px] font-bold tracking-widest py-5 text-center">Security Status</TableHead>
+                        <TableHead className="font-sans uppercase text-[10px] font-bold tracking-widest py-5">Source</TableHead>
+                        <TableHead className="font-sans uppercase text-[10px] font-bold tracking-widest py-5 text-center">Priority / SLA</TableHead>
+                        <TableHead className="font-sans uppercase text-[10px] font-bold tracking-widest py-5 text-right px-6">Action</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {complaints.length === 0 ? (
+                        <TableRow className="border-white/5">
+                          <TableCell colSpan={6} className="text-center py-20 text-muted-foreground font-sans">
+                            <div className="flex flex-col items-center gap-2 opacity-50">
+                              <Inbox className="h-12 w-12" />
+                              <p className="font-medium">No archived records match your current filters.</p>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ) : complaints.map(c => {
+                        const sla = getSLAWarning(c);
+                        return (
+                          <TableRow key={c.id} className="border-white/5 hover:bg-white/5 transition-colors group animate-reveal">
+                            <TableCell className="font-mono text-xs font-bold text-primary group-hover:text-accent transition-colors">{c.tracking_id}</TableCell>
+                            <TableCell>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-sans font-medium text-foreground">{categoryLabels[c.category] ?? c.category}</span>
+                                <span className="text-[10px] text-muted-foreground uppercase tracking-tighter">{new Date(c.created_at).toLocaleDateString()}</span>
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-center">
+                              <Badge variant="outline" className={`text-[10px] font-bold uppercase tracking-widest py-1 px-3 border-white/10 ${statusColors[c.status] ?? ""}`}>
+                                {c.status.replace("_", " ")}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-sm font-sans text-muted-foreground capitalize">{c.submission_type}</TableCell>
+                            <TableCell className="text-center">
+                              {sla ? (
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-destructive/10 text-destructive text-[10px] font-bold uppercase tracking-tighter animate-pulse">
+                                  <AlertCircle className="h-3 w-3" /> Overdue
+                                </div>
+                              ) : (
+                                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 text-green-600 text-[10px] font-bold uppercase tracking-tighter">
+                                  <Shield className="h-3 w-3" /> Secure
+                                </div>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-right px-6">
+                              <Button variant="ghost" size="sm" 
+                                      className="h-8 w-8 rounded-full p-0 hover:bg-accent/10 hover:text-accent transition-all" 
+                                      onClick={() => handleViewComplaint(c)}>
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Pagination Controls */}
+                <div className="p-6 border-t border-white/5 bg-black/10 flex items-center justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground font-sans">
+                    Showing <span className="text-foreground">{Math.min(complaints.length, pageSize)}</span> of <span className="text-foreground">{totalCount}</span> Intelligence Reports
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      disabled={currentPage === 1}
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      className="glass-card border-white/10 h-8 w-8 p-0"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.ceil(totalCount / pageSize) }).map((_, i) => (
+                        <Button 
+                          key={i}
+                          variant={currentPage === i + 1 ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setCurrentPage(i + 1)}
+                          className={`h-8 w-8 p-0 text-[10px] font-bold font-sans ${currentPage === i + 1 ? 'bg-primary text-white shadow-lg' : 'glass-card border-white/10'}`}
+                        >
+                          {i + 1}
+                        </Button>
+                      )).slice(Math.max(0, currentPage - 3), Math.min(Math.ceil(totalCount / pageSize), currentPage + 2))}
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      disabled={currentPage >= Math.ceil(totalCount / pageSize)}
+                      onClick={() => setCurrentPage(prev => prev + 1)}
+                      className="glass-card border-white/10 h-8 w-8 p-0"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="animate-reveal">
+              {/* Personnel Management Section */}
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-2xl font-bold text-primary">Intelligence Personnel</h2>
+                  <p className="text-sm text-muted-foreground">Managing security clearance and access levels for all portal officers.</p>
+                </div>
+                <Button className="font-sans gap-2 h-10 px-6 rounded-xl bg-accent text-white shadow-lg shadow-accent/20">
+                  <UserPlus className="h-4 w-4" /> Register Officer
                 </Button>
               </div>
+
+              <Card className="glass-card border-white/10 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader className="bg-black/20 backdrop-blur-md">
+                      <TableRow className="border-white/5 hover:bg-transparent">
+                        <TableHead className="font-sans uppercase text-[10px] font-bold tracking-widest py-5">Officer Identity</TableHead>
+                        <TableHead className="font-sans uppercase text-[10px] font-bold tracking-widest py-5">Email Archive</TableHead>
+                        <TableHead className="font-sans uppercase text-[10px] font-bold tracking-widest py-5 text-center">Security Clearance</TableHead>
+                        <TableHead className="font-sans uppercase text-[10px] font-bold tracking-widest py-5 text-right px-6">Access Protocol</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {personnelLoading ? (
+                        <TableRow>
+                          <TableCell colSpan={4} className="py-20 text-center">
+                            <div className="flex flex-col items-center gap-3 opacity-50">
+                              <Loader2 className="h-10 w-10 animate-spin" />
+                              <p className="text-[10px] font-bold uppercase tracking-widest">Scanning Personnel DB...</p>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ) : personnel.map(p => (
+                        <TableRow key={p.id} className="border-white/5 hover:bg-white/5 transition-colors group">
+                          <TableCell className="py-5">
+                            <div className="flex items-center gap-3">
+                              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center border border-primary/20">
+                                <span className="text-xs font-bold text-primary">{p.full_name?.charAt(0) || "U"}</span>
+                              </div>
+                              <span className="font-sans font-medium text-foreground">{p.full_name || "Unknown Identity"}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-mono text-xs opacity-70">{p.email || "N/A"}</TableCell>
+                          <TableCell className="text-center">
+                            <Badge variant="outline" className={`text-[10px] font-bold uppercase tracking-[0.2em] py-1 px-4 border-white/10 ${
+                              p.role === "admin" ? "bg-accent/10 text-accent border-accent/20" : "bg-primary/10 text-primary border-primary/20"
+                            }`}>
+                              {p.role}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right px-6">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              disabled={p.user_id === user?.id}
+                              onClick={() => handleUpdateRole(p.user_id, p.role)}
+                              className={`font-sans text-[10px] font-bold gap-2 px-4 rounded-full transition-all ${
+                                p.role === "admin" ? "hover:bg-primary/10 text-primary" : "hover:bg-accent/10 text-accent"
+                              }`}
+                            >
+                              <Settings2 className="h-3.5 w-3.5" />
+                              {p.role === "admin" ? "Downgrade Access" : "Elevate Access"}
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </Card>
             </div>
-          </div>
+          )}
         </div>
       </main>
       <Footer />

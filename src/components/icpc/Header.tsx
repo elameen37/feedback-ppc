@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
 const navLinks = [
@@ -13,6 +13,7 @@ const navLinks = [
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
   const lastScrollY = useRef(0);
 
   useEffect(() => {
@@ -26,10 +27,9 @@ const Header = () => {
   }, []);
 
   const auth = useAuth();
-
-  const allLinks = [
-    ...navLinks,
-  ];
+  
+  const isOnDashboard = location.pathname === "/dashboard";
+  const allLinks = isOnDashboard ? [] : navLinks;
 
   return (
     <header 
