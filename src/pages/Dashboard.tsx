@@ -196,7 +196,7 @@ const Dashboard = () => {
           full_name: p.full_name,
           email: p.email,
           user_id: p.user_id,
-          role: userRole?.role || "officer"
+          role: userRole?.role || "pending"
         };
       });
       
@@ -249,6 +249,19 @@ const Dashboard = () => {
       toast({ title: "Recruitment Failed", description: err.message, variant: "destructive" });
     } finally {
       setIsRegistering(false);
+    }
+  };
+
+  const handleApprovePersonnel = async (userId: string) => {
+    const { error } = await supabase
+      .from("user_roles")
+      .insert({ user_id: userId, role: "officer" });
+
+    if (error) {
+      toast({ title: "Approval Failed", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Personnel Approved", description: "Clearance upgraded to Officer level." });
+      fetchPersonnel();
     }
   };
 
@@ -346,6 +359,39 @@ const Dashboard = () => {
             <div className="h-12 w-12 rounded-full border-4 border-accent border-t-transparent animate-spin" />
             <p className="text-muted-foreground font-sans font-medium tracking-widest uppercase text-xs">Synchronizing Portal...</p>
           </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (user && role === null) {
+    return (
+      <div className="min-h-screen flex flex-col bg-mesh">
+        <Header />
+        <main className="flex-1 flex items-center justify-center relative py-12 px-4">
+          <div className="absolute inset-0 bg-grid-white/[0.02] -z-10 pointer-events-none" />
+          <Card className="glass-card max-w-lg w-full border-white/10 shadow-2xl animate-reveal">
+            <CardHeader className="text-center pb-2">
+              <div className="mx-auto w-16 h-16 bg-yellow-500/10 rounded-2xl flex items-center justify-center mb-6">
+                <ShieldCheck className="h-8 w-8 text-yellow-500" />
+              </div>
+              <CardTitle className="text-2xl font-bold text-primary">Pending Clearance</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center space-y-6">
+              <p className="text-muted-foreground font-sans">
+                Your registration has been securely logged. Access to the intelligence dashboard requires 
+                administrative approval. Please wait for an administrator to authorize your clearance.
+              </p>
+              <div className="p-4 rounded-xl bg-black/5 border border-white/5 flex items-center justify-center gap-3">
+                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Status: Awaiting Verification</span>
+              </div>
+              <Button onClick={() => signOut()} variant="outline" className="w-full font-sans border-white/10">
+                <LogOut className="mr-2 h-4 w-4" /> Sign Out
+              </Button>
+            </CardContent>
+          </Card>
         </main>
         <Footer />
       </div>
@@ -728,24 +774,40 @@ const Dashboard = () => {
                           <TableCell className="font-mono text-xs opacity-70">{p.email || "N/A"}</TableCell>
                           <TableCell className="text-center">
                             <Badge variant="outline" className={`text-[10px] font-bold uppercase tracking-[0.2em] py-1 px-4 border-white/10 ${
-                              p.role === "admin" ? "bg-accent/10 text-accent border-accent/20" : "bg-primary/10 text-primary border-primary/20"
+                              p.role === "admin" 
+                                ? "bg-green-500/10 text-green-500 border-green-500/20" 
+                                : p.role === "pending"
+                                  ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
+                                  : "bg-primary/10 text-primary border-primary/20"
                             }`}>
                               {p.role}
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right px-6">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              disabled={p.user_id === user?.id}
-                              onClick={() => handleUpdateRole(p.user_id, p.role)}
-                              className={`font-sans text-[10px] font-bold gap-2 px-4 rounded-full transition-all ${
-                                p.role === "admin" ? "hover:bg-primary/10 text-primary" : "hover:bg-accent/10 text-accent"
-                              }`}
-                            >
-                              <Settings2 className="h-3.5 w-3.5" />
-                              {p.role === "admin" ? "Downgrade Access" : "Elevate Access"}
-                            </Button>
+                            {p.role === "pending" ? (
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => handleApprovePersonnel(p.user_id)}
+                                className="font-sans text-[10px] font-bold gap-2 px-4 rounded-full transition-all bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500"
+                              >
+                                <ShieldCheck className="h-3.5 w-3.5" />
+                                Approve Access
+                              </Button>
+                            ) : (
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                disabled={p.user_id === user?.id}
+                                onClick={() => handleUpdateRole(p.user_id, p.role)}
+                                className={`font-sans text-[10px] font-bold gap-2 px-4 rounded-full transition-all ${
+                                  p.role === "admin" ? "hover:bg-primary/10 text-primary" : "hover:bg-accent/10 text-accent"
+                                }`}
+                              >
+                                <Settings2 className="h-3.5 w-3.5" />
+                                {p.role === "admin" ? "Downgrade Access" : "Elevate Access"}
+                              </Button>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}
