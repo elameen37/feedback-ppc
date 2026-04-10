@@ -3,24 +3,29 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Search, CheckCircle2, Clock, UserCheck, MessageSquare, FolderClosed, Loader2, AlertCircle } from "lucide-react";
+import { Search, CheckCircle2, Clock, UserCheck, MessageSquare, FolderClosed, Loader2, AlertCircle, Shield, Activity, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-
-const statusSteps = [
-  { key: "submitted", label: "Submitted", note: "Disclosure received and logged securely.", icon: CheckCircle2 },
-  { key: "under_review", label: "Under Review", note: "Preliminary assessment of disclosure in progress.", icon: Clock },
-  { key: "assigned", label: "Assigned", note: "Assigned to a review officer for evaluation.", icon: UserCheck },
-  { key: "responded", label: "Responded", note: "Response received from relevant parties.", icon: MessageSquare },
-  { key: "closed", label: "Closed", note: "Outcome determination complete.", icon: FolderClosed },
-];
-
-const statusOrder = statusSteps.map(s => s.key);
-
+import { Badge } from "@/components/ui/badge";
 import type { Database } from "@/integrations/supabase/types";
 
 type ComplaintCategory = Database["public"]["Enums"]["complaint_category"];
-
 const SELF_REPORT_CATEGORIES: ComplaintCategory[] = ["self_report_officer", "self_report_individual", "self_report_organization"];
+
+const statusIcons: Record<string, any> = {
+  submitted: CheckCircle2,
+  under_review: Clock,
+  assigned: UserCheck,
+  responded: MessageSquare,
+  closed: FolderClosed,
+};
+
+const statusLabels: Record<string, string> = {
+  submitted: "Disclosure Logged",
+  under_review: "Confidential Review",
+  assigned: "Review Officer Sync",
+  responded: "Entity Response",
+  closed: "Resolution Applied",
+};
 
 interface TrackDisclosureDialogProps {
   open: boolean;
@@ -29,7 +34,8 @@ interface TrackDisclosureDialogProps {
 
 const TrackDisclosureDialog = ({ open, onOpenChange }: TrackDisclosureDialogProps) => {
   const [refId, setRefId] = useState("");
-  const [complaint, setComplaint] = useState<{ status: string; created_at: string; tracking_id: string } | null>(null);
+  const [complaint, setComplaint] = useState<{ id: string; status: string; created_at: string; tracking_id: string } | null>(null);
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [notFound, setNotFound] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -39,95 +45,155 @@ const TrackDisclosureDialog = ({ open, onOpenChange }: TrackDisclosureDialogProp
     setLoading(true);
     setNotFound(false);
     setComplaint(null);
+    setAuditLogs([]);
 
     const { data, error } = await supabase
       .from("complaints")
-      .select("status, created_at, tracking_id")
+      .select("id, status, created_at, tracking_id")
       .eq("tracking_id", refId.trim())
       .in("category", SELF_REPORT_CATEGORIES)
       .maybeSingle();
 
-    setLoading(false);
     if (error || !data) {
+      setLoading(false);
       setNotFound(true);
     } else {
       setComplaint(data);
+      const { data: logs } = await supabase
+        .from("audit_logs")
+        .select("*")
+        .eq("complaint_id", data.id)
+        .order("created_at", { ascending: false });
+      
+      setAuditLogs(logs || []);
+      setLoading(false);
     }
   };
 
   const handleClose = (val: boolean) => {
-    if (!val) {
-      setRefId("");
-      setComplaint(null);
-      setNotFound(false);
-    }
+    if (!val) { setRefId(""); setComplaint(null); setAuditLogs([]); setNotFound(false); }
     onOpenChange(val);
   };
 
-  const currentIndex = complaint ? statusOrder.indexOf(complaint.status) : -1;
-
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Track Your Disclosure</DialogTitle>
-          <DialogDescription>
-            Enter your self-reporting reference ID to view the current status of your disclosure.
+      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto glass-card border-white/10 bg-background/80 backdrop-blur-2xl transition-all duration-500">
+        <DialogHeader className="mb-6 relative">
+          <div className="absolute -top-12 -left-12 w-32 h-32 bg-accent/10 rounded-full blur-3xl -z-10" />
+          <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+             <Shield className="h-6 w-6 text-accent" />
+             Self-Reporting Intelligence
+          </DialogTitle>
+          <DialogDescription className="font-sans text-muted-foreground/80 mt-2">
+            Enter your secure reference ID to view the strictly confidential activity log.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleTrack} className="flex flex-col sm:flex-row gap-3">
+        <form onSubmit={handleTrack} className="flex flex-col sm:flex-row gap-3 mb-8 animate-reveal stagger-1">
           <div className="flex-1 space-y-1">
-            <Label htmlFor="dialog-sr-track-ref" className="sr-only">Self-Reporting Reference ID</Label>
+            <Label htmlFor="dialog-sr-track-ref" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1 block font-sans">Confidential ID</Label>
             <Input
               id="dialog-sr-track-ref"
               placeholder="e.g. ICPC-SR-2026-XYZ789"
+              className="glass-card bg-background/40 h-12 border-white/5 focus-visible:ring-accent font-mono"
               value={refId}
               onChange={(e) => { setRefId(e.target.value); setComplaint(null); setNotFound(false); }}
               maxLength={40}
             />
           </div>
-          <Button type="submit" className="font-sans gap-2" disabled={loading}>
+          <Button type="submit" className="sm:mt-[18px] h-12 px-8 font-sans gap-2 bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20" disabled={loading}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-            Track
+            {loading ? "Scanning Vault..." : "Sync Disclosure"}
           </Button>
         </form>
 
         {notFound && (
-          <div className="mt-4 flex items-center gap-2 text-destructive text-sm font-sans">
-            <AlertCircle className="h-4 w-4" />
-            No self-reporting disclosure found with that ID. Please check and try again.
+          <div className="p-6 rounded-2xl bg-destructive/5 border border-destructive/20 animate-reveal flex items-center gap-4">
+            <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center">
+              <AlertCircle className="h-5 w-5 text-destructive" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-destructive font-sans">Identity Unrecognized</p>
+              <p className="text-xs text-destructive/70 font-sans">No secure disclosure found for the provided ID in our system.</p>
+            </div>
           </div>
         )}
 
         {complaint && (
-          <div className="mt-4">
-            <p className="text-sm text-muted-foreground font-sans mb-4">
-              Status for: <strong className="text-foreground">{complaint.tracking_id}</strong>
-            </p>
-            <ol className="relative border-l-2 border-primary/30 ml-4 space-y-6" aria-label="Disclosure status timeline">
-              {statusSteps.map((step, i) => {
-                const complete = i <= currentIndex;
-                return (
-                  <li key={step.key} className="ml-6">
-                    <span className={`absolute -left-[13px] flex items-center justify-center w-6 h-6 rounded-full ring-4 ring-background ${
-                      complete ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                    }`}>
-                      <step.icon className="h-3.5 w-3.5" />
-                    </span>
-                    <h3 className={`text-sm font-bold font-sans ${complete ? "text-primary" : "text-muted-foreground"}`}>
-                      {step.label}
-                    </h3>
-                    {i === 0 && complaint.created_at && (
-                      <time className="text-xs text-muted-foreground font-sans">
-                        {new Date(complaint.created_at).toLocaleDateString()}
-                      </time>
-                    )}
-                    <p className="text-sm text-muted-foreground font-sans mt-1">{step.note}</p>
-                  </li>
-                );
-              })}
-            </ol>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-accent/5 border border-accent/10 animate-reveal stagger-2">
+              <div className="space-y-1">
+                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground font-sans">Current Phase</p>
+                <Badge className={`${
+                   complaint.status === "closed" ? "bg-muted text-muted-foreground" : "bg-accent text-white"
+                } h-6 px-3 rounded-full text-[10px] font-bold tracking-wider uppercase shadow-sm`}>
+                  {statusLabels[complaint.status] || complaint.status}
+                </Badge>
+              </div>
+              <div className="text-right">
+                <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground font-sans">Secure Reference</p>
+                <p className="text-xs font-mono font-bold text-foreground">{complaint.tracking_id}</p>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 px-1">
+                <Activity className="h-4 w-4 text-accent" />
+                <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground font-sans">Confidential Activity Log</h3>
+              </div>
+              
+              <div className="relative space-y-4 pl-4 before:absolute before:left-0 before:top-2 before:bottom-2 before:w-px before:bg-gradient-to-b before:from-accent/40 before:via-accent/10 before:to-transparent">
+                {auditLogs.length > 0 ? (
+                  auditLogs.map((log, i) => {
+                    const Icon = statusIcons[log.new_status] || Activity;
+                    const isLatest = i === 0;
+                    return (
+                      <div key={log.id} className={`relative animate-reveal stagger-${Math.min(i + 3, 6)}`}>
+                        <div className={`absolute -left-[20px] top-1 w-2.5 h-2.5 rounded-full ring-4 ring-background shadow-sm ${
+                          isLatest ? "bg-accent animate-pulse" : "bg-muted"
+                        }`} />
+                        <div className={`glass-card p-4 border-white/5 transition-all duration-300 hover:border-accent/20 group ${
+                          isLatest ? "bg-accent/5 border-accent/10" : "bg-white/5"
+                        }`}>
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <Icon className={`h-4 w-4 ${isLatest ? "text-accent" : "text-muted-foreground"}`} />
+                              <p className={`text-xs font-bold font-sans ${isLatest ? "text-accent" : "text-foreground"}`}>
+                                {statusLabels[log.new_status] || "Phase Sync"}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground opacity-60">
+                              <Calendar className="h-3 w-3" />
+                              {new Date(log.created_at).toLocaleDateString(undefined, {
+                                month: 'short', day: 'numeric', year: 'numeric'
+                              })}
+                            </div>
+                          </div>
+                          {log.notes && (
+                            <p className="text-xs text-muted-foreground/80 font-sans leading-relaxed pl-6 italic border-l border-white/5">
+                              "{log.notes}"
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="relative animate-reveal stagger-3">
+                    <div className="absolute -left-[20px] top-1 w-2.5 h-2.5 rounded-full ring-4 ring-background bg-accent" />
+                    <div className="glass-card p-4 bg-accent/5 border-accent/10">
+                      <div className="flex items-center gap-2 mb-1">
+                        <CheckCircle2 className="h-4 w-4 text-accent" />
+                        <p className="text-xs font-bold font-sans text-accent">Disclosure Logged</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground/80 font-sans pl-6">
+                        Self-reporting disclosure has been securely transmitted and encrypted.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </DialogContent>
