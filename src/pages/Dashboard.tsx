@@ -437,7 +437,7 @@ const Dashboard = () => {
                 </div>
                 <Sheet open={isNotificationOpen} onOpenChange={setIsNotificationOpen}>
                   <SheetTrigger asChild>
-                    <Button variant="ghost" size="sm" className="relative h-8 w-8 p-0 hover:bg-white/10">
+                    <Button variant="ghost" size="sm" className="relative h-8 w-8 p-0 hover:bg-accent/10 hover:text-accent transition-colors">
                       <Bell className={`h-4 w-4 ${notifications.some(n => n.unread) ? "text-accent animate-[bounce_2s_infinite]" : ""}`} />
                       {notifications.some(n => n.unread) && (
                         <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-accent rounded-full border-2 border-[#0D1117]" />
@@ -509,11 +509,11 @@ const Dashboard = () => {
                   </SheetContent>
                 </Sheet>
                 <div className="h-4 w-px bg-white/10" />
-                <Button variant="ghost" size="sm" className="font-sans gap-2 hover:bg-white/10" onClick={exportCSV}>
+                <Button variant="ghost" size="sm" className="font-sans gap-2 hover:bg-accent/10 hover:text-accent transition-colors" onClick={exportCSV}>
                   <FileDown className="h-4 w-4" /> Export
                 </Button>
                 <div className="h-4 w-px bg-white/10" />
-                <Button variant="ghost" size="sm" className="font-sans gap-2 text-destructive hover:bg-destructive/10" onClick={signOut}>
+                <Button variant="ghost" size="sm" className="font-sans gap-2 text-destructive hover:bg-accent/10 hover:text-accent transition-colors" onClick={signOut}>
                   <LogOut className="h-4 w-4" /> Sign Out
                 </Button>
               </div>
