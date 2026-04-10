@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 
 const navLinks = [
-  { label: "About", href: "/" },
+  { label: "Platform Overview", href: "/" },
   { label: "Submit Feedback", href: "/submit-feedback" },
   { label: "Self-Reporting", href: "/self-reporting" },
 ];
@@ -12,13 +12,11 @@ const navLinks = [
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
     const handleScroll = () => {
       const currentY = window.scrollY;
-      setVisible(currentY < lastScrollY.current || currentY < 10);
       setScrolled(currentY > 20);
       lastScrollY.current = currentY;
     };
@@ -38,8 +36,8 @@ const Header = () => {
   return (
     <header 
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
-        visible ? "translate-y-0" : "-translate-y-full"
-      } ${scrolled ? "glass-header" : "bg-primary shadow-lg"}`}
+        scrolled ? "glass-header" : "bg-primary shadow-lg"
+      }`}
     >
       <div className={scrolled ? "text-foreground" : "text-primary-foreground"}>
         <div className={`container flex items-center justify-between transition-all duration-300 ${scrolled ? "py-1.5" : "py-3"}`}>
