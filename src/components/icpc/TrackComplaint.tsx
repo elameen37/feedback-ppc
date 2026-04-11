@@ -3,8 +3,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, CheckCircle2, Clock, UserCheck, MessageSquare, FolderClosed, Shield, Activity, Calendar, Loader2, AlertCircle, CheckCircle } from "lucide-react";
+import { Search, CheckCircle2, Clock, UserCheck, MessageSquare, FolderClosed, Shield, Loader2, AlertCircle, CheckCircle, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
+import jsPDF from "jspdf";
 import { Badge } from "@/components/ui/badge";
 
 const statusSteps = [
