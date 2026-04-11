@@ -7,7 +7,6 @@ import { Search, CheckCircle2, Clock, UserCheck, MessageSquare, FolderClosed, Sh
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import jsPDF from "jspdf";
-import { Badge } from "@/components/ui/badge";
 
 const statusSteps = [
   { key: "submitted", label: "Registered", note: "The submission has been received and securely registered within our portal.", icon: CheckCircle2 },
