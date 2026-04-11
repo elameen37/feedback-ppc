@@ -241,6 +241,11 @@ const TrackComplaintDialog = ({ open, onOpenChange }: TrackComplaintDialogProps)
                 })}
               </div>
             </div>
+
+            <Button onClick={downloadPDF} variant="outline" className="w-full gap-2 h-11 border-primary/20 text-primary hover:bg-primary/10 font-sans font-bold mt-2">
+              <Download className="h-4 w-4" />
+              Download Progress Report
+            </Button>
           </div>
         )}
       </DialogContent>
