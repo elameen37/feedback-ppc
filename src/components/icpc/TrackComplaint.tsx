@@ -218,6 +218,10 @@ const TrackComplaint = () => {
                     </div>
                  </CardContent>
                </Card>
+               <Button onClick={downloadPDF} variant="outline" className="w-full gap-2 h-12 border-primary/20 text-primary hover:bg-primary/10 font-sans font-bold animate-reveal stagger-3">
+                 <Download className="h-4 w-4" />
+                 Download Progress Report
+               </Button>
             </div>
 
             <div className="lg:col-span-8 space-y-6">
