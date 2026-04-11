@@ -53,8 +53,16 @@ const Header = () => {
             </div>
             <p className="block sm:hidden text-xs font-bold font-sans">ICPC Nigeria</p>
           </div>
-          <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-primary-foreground/10 md:hidden" onClick={() => setMobileOpen(!mobileOpen)} aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}>
-            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className={`md:hidden transition-all duration-300 ${scrolled ? "text-accent hover:bg-accent/10" : "text-primary-foreground hover:bg-primary-foreground/10"}`} 
+            onClick={() => setMobileOpen(!mobileOpen)} 
+            aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+          >
+            <div className={`transition-all duration-300 ${mobileOpen ? "rotate-90 scale-110" : "rotate-0 scale-100"}`}>
+              {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </div>
           </Button>
         </div>
       </div>
