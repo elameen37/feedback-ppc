@@ -146,8 +146,8 @@ const Dashboard = () => {
 
     // Apply Filters Server-side if possible, or client-side if complex
     // For now, let's do server-side status/category filters
-    if (filterStatus !== "all") query = query.eq("status", filterStatus);
-    if (filterCategory !== "all") query = query.eq("category", filterCategory);
+    if (filterStatus !== "all") query = query.eq("status", filterStatus as Database["public"]["Enums"]["complaint_status"]);
+    if (filterCategory !== "all") query = query.eq("category", filterCategory as Database["public"]["Enums"]["complaint_category"]);
     if (searchQuery) query = query.ilike("tracking_id", `%${searchQuery}%`);
 
     const from = (currentPage - 1) * pageSize;
@@ -368,7 +368,7 @@ const Dashboard = () => {
 
   const exportCSV = () => {
     const headers = ["Tracking ID", "Category", "Status", "Submission Type", "Anonymous", "Date"];
-    const rows = filtered.map(c => [
+    const rows = complaints.map(c => [
       c.tracking_id, c.category, c.status, c.submission_type, c.anonymous ? "Yes" : "No",
       new Date(c.created_at).toLocaleDateString(),
     ]);

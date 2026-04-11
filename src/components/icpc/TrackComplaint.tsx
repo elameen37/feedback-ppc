@@ -3,9 +3,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Search, CheckCircle2, Clock, UserCheck, MessageSquare, FolderClosed, Shield, Activity, Calendar, Loader2, AlertCircle, CheckCircle } from "lucide-react";
+import { Search, CheckCircle2, Clock, UserCheck, MessageSquare, FolderClosed, Shield, Loader2, AlertCircle, CheckCircle, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
+import jsPDF from "jspdf";
 
 const statusSteps = [
   { key: "submitted", label: "Registered", note: "The submission has been received and securely registered within our portal.", icon: CheckCircle2 },
@@ -46,6 +47,107 @@ const TrackComplaint = () => {
   };
 
   const currentIndex = complaint ? statusOrder.indexOf(complaint.status) : -1;
+
+  const downloadPDF = () => {
+    if (!complaint) return;
+    const doc = new jsPDF();
+    const w = doc.internal.pageSize.getWidth();
+    let y = 20;
+
+    // Header
+    doc.setFillColor(0, 100, 0);
+    doc.rect(0, 0, w, 40, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text("ICPC Nigeria", 14, 18);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text("Independent Corrupt Practices and Other Related Offences Commission", 14, 26);
+    doc.text("Complaint Progress Report", 14, 34);
+
+    y = 52;
+    doc.setTextColor(0, 0, 0);
+
+    // Reference info
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Tracking Reference:", 14, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(complaint.tracking_id, 65, y);
+    y += 8;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Current Status:", 14, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(statusSteps[currentIndex]?.label || complaint.status, 65, y);
+    y += 8;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Date Submitted:", 14, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(new Date(complaint.created_at).toLocaleDateString(), 65, y);
+    y += 8;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Report Generated:", 14, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(new Date().toLocaleString(), 65, y);
+    y += 16;
+
+    // Divider
+    doc.setDrawColor(200, 200, 200);
+    doc.line(14, y, w - 14, y);
+    y += 10;
+
+    // Progress milestones
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    doc.text("Milestone Progress Path", 14, y);
+    y += 10;
+
+    statusSteps.forEach((step, i) => {
+      const isCompleted = i < currentIndex;
+      const isCurrent = i === currentIndex;
+
+      // Status indicator
+      if (isCompleted) {
+        doc.setFillColor(0, 100, 0);
+      } else if (isCurrent) {
+        doc.setFillColor(0, 150, 50);
+      } else {
+        doc.setFillColor(180, 180, 180);
+      }
+      doc.circle(20, y + 2, 3, "F");
+
+      // Label
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(0, 0, 0);
+      const statusTag = isCompleted ? " ✓" : isCurrent ? " ●" : "";
+      doc.text(`${step.label}${statusTag}`, 28, y + 4);
+
+      // Note
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(100, 100, 100);
+      const noteLines = doc.splitTextToSize(step.note, w - 46);
+      doc.text(noteLines, 28, y + 10);
+      y += 10 + noteLines.length * 5 + 6;
+    });
+
+    // Footer
+    y += 6;
+    doc.setDrawColor(200, 200, 200);
+    doc.line(14, y, w - 14, y);
+    y += 8;
+    doc.setFontSize(8);
+    doc.setTextColor(140, 140, 140);
+    doc.text("This document is auto-generated from the ICPC Nigeria Complaint Tracking System.", 14, y);
+    doc.text("For inquiries, visit: https://feedback-ppc.lovable.app", 14, y + 5);
+
+    doc.save(`ICPC-Progress-${complaint.tracking_id}.pdf`);
+  };
 
   return (
     <section id="track" className="py-20 sm:py-24 bg-mesh relative overflow-hidden" aria-labelledby="track-title">
@@ -116,6 +218,10 @@ const TrackComplaint = () => {
                     </div>
                  </CardContent>
                </Card>
+               <Button onClick={downloadPDF} variant="outline" className="w-full gap-2 h-12 border-primary/20 text-primary hover:bg-primary/10 font-sans font-bold animate-reveal stagger-3">
+                 <Download className="h-4 w-4" />
+                 Download Progress Report
+               </Button>
             </div>
 
             <div className="lg:col-span-8 space-y-6">
