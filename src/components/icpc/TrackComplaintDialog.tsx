@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Search, CheckCircle2, Clock, UserCheck, MessageSquare, FolderClosed, Loader2, AlertCircle, Shield, CheckCircle, Download } from "lucide-react";
 import jsPDF from "jspdf";
+import { generateQRDataURL } from "@/lib/qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 
@@ -57,7 +58,7 @@ const TrackComplaintDialog = ({ open, onOpenChange }: TrackComplaintDialogProps)
 
   const currentIndex = complaint ? statusOrder.indexOf(complaint.status) : -1;
 
-  const downloadPDF = () => {
+  const downloadPDF = async () => {
     if (!complaint) return;
     const doc = new jsPDF();
     const w = doc.internal.pageSize.getWidth();
@@ -125,10 +126,18 @@ const TrackComplaintDialog = ({ open, onOpenChange }: TrackComplaintDialogProps)
     doc.setDrawColor(200, 200, 200);
     doc.line(14, y, w - 14, y);
     y += 8;
+
+    const trackUrl = `https://feedback-ppc.lovable.app/track-complaint`;
+    try {
+      const qrDataUrl = await generateQRDataURL(trackUrl);
+      doc.addImage(qrDataUrl, "PNG", w - 54, y, 40, 40);
+    } catch {}
+
     doc.setFontSize(8);
     doc.setTextColor(140, 140, 140);
     doc.text("This document is auto-generated from the ICPC Nigeria Complaint Tracking System.", 14, y);
     doc.text("For inquiries, visit: https://feedback-ppc.lovable.app", 14, y + 5);
+    doc.text("Scan the QR code to track your complaint online.", 14, y + 10);
     doc.save(`ICPC-Progress-${complaint.tracking_id}.pdf`);
   };
 

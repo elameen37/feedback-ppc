@@ -7,6 +7,7 @@ import { Search, CheckCircle2, Clock, UserCheck, MessageSquare, FolderClosed, Sh
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import jsPDF from "jspdf";
+import { generateQRDataURL } from "@/lib/qrcode";
 
 const statusSteps = [
   { key: "submitted", label: "Registered", note: "The submission has been received and securely registered within our portal.", icon: CheckCircle2 },
@@ -48,7 +49,7 @@ const TrackComplaint = () => {
 
   const currentIndex = complaint ? statusOrder.indexOf(complaint.status) : -1;
 
-  const downloadPDF = () => {
+  const downloadPDF = async () => {
     if (!complaint) return;
     const doc = new jsPDF();
     const w = doc.internal.pageSize.getWidth();
@@ -141,10 +142,19 @@ const TrackComplaint = () => {
     doc.setDrawColor(200, 200, 200);
     doc.line(14, y, w - 14, y);
     y += 8;
+
+    // QR Code
+    const trackUrl = `https://feedback-ppc.lovable.app/track-complaint`;
+    try {
+      const qrDataUrl = await generateQRDataURL(trackUrl);
+      doc.addImage(qrDataUrl, "PNG", w - 54, y, 40, 40);
+    } catch {}
+
     doc.setFontSize(8);
     doc.setTextColor(140, 140, 140);
     doc.text("This document is auto-generated from the ICPC Nigeria Complaint Tracking System.", 14, y);
     doc.text("For inquiries, visit: https://feedback-ppc.lovable.app", 14, y + 5);
+    doc.text("Scan the QR code to track your complaint online.", 14, y + 10);
 
     doc.save(`ICPC-Progress-${complaint.tracking_id}.pdf`);
   };

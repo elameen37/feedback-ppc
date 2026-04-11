@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import type { Database } from "@/integrations/supabase/types";
 import jsPDF from "jspdf";
+import { generateQRDataURL } from "@/lib/qrcode";
 
 type ComplaintCategory = Database["public"]["Enums"]["complaint_category"];
 const SELF_REPORT_CATEGORIES: ComplaintCategory[] = ["self_report_officer", "self_report_individual", "self_report_organization"];
@@ -60,7 +61,7 @@ const TrackDisclosureDialog = ({ open, onOpenChange }: TrackDisclosureDialogProp
     onOpenChange(val);
   };
 
-  const downloadPDF = () => {
+  const downloadPDF = async () => {
     if (!complaint) return;
     const doc = new jsPDF();
     const w = doc.internal.pageSize.getWidth();
@@ -145,10 +146,18 @@ const TrackDisclosureDialog = ({ open, onOpenChange }: TrackDisclosureDialogProp
     doc.setDrawColor(200, 200, 200);
     doc.line(14, y, w - 14, y);
     y += 8;
+
+    const trackUrl = `https://feedback-ppc.lovable.app/self-reporting`;
+    try {
+      const qrDataUrl = await generateQRDataURL(trackUrl);
+      doc.addImage(qrDataUrl, "PNG", w - 54, y, 40, 40);
+    } catch {}
+
     doc.setFontSize(8);
     doc.setTextColor(140, 140, 140);
     doc.text("This document is auto-generated from the ICPC Nigeria Self-Reporting Disclosure System.", 14, y);
     doc.text("For inquiries, visit: https://feedback-ppc.lovable.app", 14, y + 5);
+    doc.text("Scan the QR code to track your disclosure online.", 14, y + 10);
 
     doc.save(`ICPC-SR-Progress-${complaint.tracking_id}.pdf`);
   };
