@@ -217,6 +217,11 @@ const TrackDisclosureDialog = ({ open, onOpenChange }: TrackDisclosureDialogProp
               </div>
             </div>
 
+            <Button onClick={downloadPDF} variant="outline" className="w-full gap-2 h-10 border-accent/20 text-accent hover:bg-accent/10 font-sans font-bold text-xs">
+              <Download className="h-4 w-4" />
+              Download Disclosure Report
+            </Button>
+
             <div className="space-y-4">
               <div className="flex items-center gap-2 px-1">
                 <CheckCircle className="h-4 w-4 text-accent" />
