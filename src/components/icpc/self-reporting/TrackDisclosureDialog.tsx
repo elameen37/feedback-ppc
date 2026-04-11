@@ -3,10 +3,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Search, CheckCircle2, Clock, UserCheck, MessageSquare, FolderClosed, Loader2, AlertCircle, Shield, CheckCircle } from "lucide-react";
+import { Search, CheckCircle2, Clock, UserCheck, MessageSquare, FolderClosed, Loader2, AlertCircle, Shield, CheckCircle, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import type { Database } from "@/integrations/supabase/types";
+import jsPDF from "jspdf";
 
 type ComplaintCategory = Database["public"]["Enums"]["complaint_category"];
 const SELF_REPORT_CATEGORIES: ComplaintCategory[] = ["self_report_officer", "self_report_individual", "self_report_organization"];
@@ -57,6 +58,99 @@ const TrackDisclosureDialog = ({ open, onOpenChange }: TrackDisclosureDialogProp
   const handleClose = (val: boolean) => {
     if (!val) { setRefId(""); setComplaint(null); setNotFound(false); }
     onOpenChange(val);
+  };
+
+  const downloadPDF = () => {
+    if (!complaint) return;
+    const doc = new jsPDF();
+    const w = doc.internal.pageSize.getWidth();
+    let y = 20;
+
+    doc.setFillColor(0, 100, 0);
+    doc.rect(0, 0, w, 40, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text("ICPC Nigeria", 14, 18);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text("Independent Corrupt Practices and Other Related Offences Commission", 14, 26);
+    doc.text("Self-Reporting Disclosure Progress Report", 14, 34);
+
+    y = 52;
+    doc.setTextColor(0, 0, 0);
+
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Secure Reference:", 14, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(complaint.tracking_id, 65, y);
+    y += 8;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Current Phase:", 14, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(statusSteps[currentIndex]?.label || complaint.status, 65, y);
+    y += 8;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Date Submitted:", 14, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(new Date(complaint.created_at).toLocaleDateString(), 65, y);
+    y += 8;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Report Generated:", 14, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(new Date().toLocaleString(), 65, y);
+    y += 16;
+
+    doc.setDrawColor(200, 200, 200);
+    doc.line(14, y, w - 14, y);
+    y += 10;
+
+    doc.setFontSize(13);
+    doc.setFont("helvetica", "bold");
+    doc.text("Confidential Milestone Track", 14, y);
+    y += 10;
+
+    statusSteps.forEach((step, i) => {
+      const isCompleted = i < currentIndex;
+      const isCurrent = i === currentIndex;
+
+      if (isCompleted) {
+        doc.setFillColor(0, 100, 0);
+      } else if (isCurrent) {
+        doc.setFillColor(0, 150, 50);
+      } else {
+        doc.setFillColor(180, 180, 180);
+      }
+      doc.circle(20, y + 2, 3, "F");
+
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(0, 0, 0);
+      const statusTag = isCompleted ? " ✓" : isCurrent ? " ●" : "";
+      doc.text(`${step.label}${statusTag}`, 28, y + 4);
+
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(100, 100, 100);
+      const noteLines = doc.splitTextToSize(step.note, w - 46);
+      doc.text(noteLines, 28, y + 10);
+      y += 10 + noteLines.length * 5 + 6;
+    });
+
+    y += 6;
+    doc.setDrawColor(200, 200, 200);
+    doc.line(14, y, w - 14, y);
+    y += 8;
+    doc.setFontSize(8);
+    doc.setTextColor(140, 140, 140);
+    doc.text("This document is auto-generated from the ICPC Nigeria Self-Reporting Disclosure System.", 14, y);
+    doc.text("For inquiries, visit: https://feedback-ppc.lovable.app", 14, y + 5);
+
+    doc.save(`ICPC-SR-Progress-${complaint.tracking_id}.pdf`);
   };
 
   const currentIndex = complaint ? statusOrder.indexOf(complaint.status) : -1;
@@ -122,6 +216,11 @@ const TrackDisclosureDialog = ({ open, onOpenChange }: TrackDisclosureDialogProp
                 <p className="text-xs font-mono font-bold text-foreground">{complaint.tracking_id}</p>
               </div>
             </div>
+
+            <Button onClick={downloadPDF} variant="outline" className="w-full gap-2 h-10 border-accent/20 text-accent hover:bg-accent/10 font-sans font-bold text-xs">
+              <Download className="h-4 w-4" />
+              Download Disclosure Report
+            </Button>
 
             <div className="space-y-4">
               <div className="flex items-center gap-2 px-1">
