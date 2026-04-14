@@ -78,6 +78,15 @@ const Dashboard = () => {
   const [isRegistering, setIsRegistering] = useState(false);
   const [realtimeStatus, setRealtimeStatus] = useState<"connected" | "connecting" | "disconnected">("connecting");
 
+  const { isWarningVisible, remainingSeconds, extendSession, sessionStartTime } = useSessionTimeout({
+    timeoutMinutes: 15,
+    warningMinutes: 2,
+    onTimeout: async () => {
+      await signOut();
+      navigate("/auth");
+    },
+  });
+
   useEffect(() => {
     if (!authLoading && !user) {
       navigate("/auth");
