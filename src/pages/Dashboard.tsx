@@ -1131,6 +1131,11 @@ const Dashboard = () => {
           </div>
         </DialogContent>
       </Dialog>
+      <SessionTimeoutWarning 
+        open={isWarningVisible} 
+        remainingSeconds={remainingSeconds} 
+        onExtend={extendSession} 
+      />
     </div>
   );
 };
