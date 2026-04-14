@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/icpc/Header";
 import Footer from "@/components/icpc/Footer";
+import SessionInfoBar from "@/components/icpc/SessionInfoBar";
+import SessionTimeoutWarning from "@/components/icpc/SessionTimeoutWarning";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
