@@ -486,6 +486,15 @@ const Dashboard = () => {
                 Managing <span className="text-primary font-bold">{totalCount}</span> security reports. 
                 SLA compliance is currently at <span className="text-accent font-bold">94%</span>.
               </p>
+              {user && (
+                <div className="mt-2">
+                  <SessionInfoBar 
+                    userEmail={user.email || ""} 
+                    role={role} 
+                    sessionStartTime={sessionStartTime} 
+                  />
+                </div>
+              )}
             </div>
             
               <div className="flex items-center gap-3 p-1 glass-card border-white/10 rounded-2xl">
