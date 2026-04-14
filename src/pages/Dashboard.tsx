@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/icpc/Header";
 import Footer from "@/components/icpc/Footer";
+import SessionInfoBar from "@/components/icpc/SessionInfoBar";
+import SessionTimeoutWarning from "@/components/icpc/SessionTimeoutWarning";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -74,6 +77,15 @@ const Dashboard = () => {
   const [newOfficerData, setNewOfficerData] = useState({ full_name: "", email: "", password: "" });
   const [isRegistering, setIsRegistering] = useState(false);
   const [realtimeStatus, setRealtimeStatus] = useState<"connected" | "connecting" | "disconnected">("connecting");
+
+  const { isWarningVisible, remainingSeconds, extendSession, sessionStartTime } = useSessionTimeout({
+    timeoutMinutes: 15,
+    warningMinutes: 2,
+    onTimeout: async () => {
+      await signOut();
+      navigate("/auth");
+    },
+  });
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -474,6 +486,15 @@ const Dashboard = () => {
                 Managing <span className="text-primary font-bold">{totalCount}</span> security reports. 
                 SLA compliance is currently at <span className="text-accent font-bold">94%</span>.
               </p>
+              {user && (
+                <div className="mt-2">
+                  <SessionInfoBar 
+                    userEmail={user.email || ""} 
+                    role={role} 
+                    sessionStartTime={sessionStartTime} 
+                  />
+                </div>
+              )}
             </div>
             
               <div className="flex items-center gap-3 p-1 glass-card border-white/10 rounded-2xl">
@@ -1110,6 +1131,11 @@ const Dashboard = () => {
           </div>
         </DialogContent>
       </Dialog>
+      <SessionTimeoutWarning 
+        open={isWarningVisible} 
+        remainingSeconds={remainingSeconds} 
+        onExtend={extendSession} 
+      />
     </div>
   );
 };
